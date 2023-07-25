@@ -19,7 +19,6 @@
         physics: {
             default: 'arcade',
         },
-//Aojnasdfkljpasdf
         scene: {
             preload: preload,
             create: create,
@@ -30,7 +29,7 @@
 
     class Player extends Phaser.Physics.Arcade.Sprite
     {
-        totalJumps = 2;
+        totalJumps = 1000;
         currentJumps = 0;
         constructor(scene, x, y)
         {
@@ -47,8 +46,9 @@
 
     //Game Objects
     var platforms; 
-    var skys
+    var skys;
     var player;
+    var collapsingPlatforms;
 
     //Keyboard controls
     var cursors;
@@ -69,6 +69,7 @@
         this.load.image('platform', 'assets/platform.png');
         this.load.image('player', 'assets/wabbit.png');
         this.load.image('lava', 'assets/lava.png');
+        this.load.image('collapsing-platform','assets/rock_platform.png')
     }
 
     function create()
@@ -84,6 +85,14 @@
        this.physics.add.collider(player, platforms);
        player2 = new Player(this, 350, 2000);
        this.physics.add.collider(player2, platforms);
+
+       //Create collapsing platform
+       collapsingPlatforms = this.physics.add.staticGroup();
+       collapsingPlatforms.create(1000,7000, 'collapsing-platform');
+       collapsingPlatforms.create(500,5000,'collapsing-platform');
+       collapsingPlatforms.create(400, 6000,'collapsing-platform');
+       this.physics.add.collider(player,collapsingPlatforms,shakePlatform,checkOneWay,this);
+       this.physics.add.collider(player2,collapsingPlatforms,shakePlatform,checkOneWay,this);
 
        //Set up user input
        cursors = this.input.keyboard.createCursorKeys();
@@ -172,6 +181,55 @@
             platform1.setScale(0.2, 0.5).refreshBody();
         }
         //LavaPlatform.BringToTop()
+    }
+    
+    function checkOneWay(player, oneway) {
+  //if player is higher up the screen then the plaform then enable the collision
+      if (player.y < oneway.y) {
+        return true;
+      }
+  //otherwise disable collision
+      return false;
+    }
+    
+    function shakePlatform(player, platform) {
+    //only make platform shake if player is standing on it
+      if (player.body.blocked.down) {
+        //we need to store the global scope here so we can keep it later
+        var ourScene = this;
+        //do a yoyo tween shaking the platform back and forth and up and down
+        var tween = this.tweens.add({
+            targets: platform,
+            yoyo: true,
+            repeat: 10,
+            x: {
+                from: platform.x,
+                to: platform.x + 2 * 1,
+            },
+            ease: 'Linear',
+            duration: 50,
+            onComplete: function() {
+                destroyPlatform.call(ourScene, platform);
+            }
+        });
+      }
+    }
+    
+    function destroyPlatform(platform) {
+     var tween = this.tweens.add({
+        targets: platform,
+        alpha: 0,
+        y: "+=25",
+        ease: 'Linear',
+        duration: 100,
+        onComplete: function() {
+            destroyGameObject(platform);
+        }
+      });
+    }
+
+    function destroyGameObject(gameObject) {
+      gameObject.destroy();
     }
 
     function update()
