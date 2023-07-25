@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<--! Test -->
+
 <html>
 
 <head>
@@ -19,7 +19,7 @@
         physics: {
             default: 'arcade',
         },
-//Aojnasdfkljpasdf
+
         scene: {
             preload: preload,
             create: create,
@@ -30,6 +30,7 @@
 
     class Player extends Phaser.Physics.Arcade.Sprite
     {
+        lastCheckpoint;
         totalJumps = 2;
         currentJumps = 0;
         constructor(scene, x, y)
@@ -40,7 +41,22 @@
             this.setScale(2);
             this.setCollideWorldBounds(false);
             this.setGravityY(3000); //We will set gravity *per object* rather than for the scene!
+            
         }
+    }
+
+    class Checkpoint extends Phaser.Physics.Arcade.Sprite{
+      x;
+      y;
+      constructor(scene, x, y){
+          super(scene, x, y, 'checkFlag');
+          scene.add.existing(this);
+          scene.physics.add.existing(this);
+          this.setScale(0.25);
+          this.x = x;
+          this.y = y;
+          checkpoints.push(this);
+      }
     }
 
     var game = new Phaser.Game(config);
@@ -49,6 +65,7 @@
     var platforms; 
     var skys
     var player;
+    var checkpoints = [];
 
     //Keyboard controls
     var cursors;
@@ -69,6 +86,7 @@
         this.load.image('platform', 'assets/platform.png');
         this.load.image('player', 'assets/wabbit.png');
         this.load.image('lava', 'assets/lava.png');
+        this.load.image('checkFlag', 'assets//checkpoint_flag_solidgreen.png')
     }
 
     function create()
@@ -80,10 +98,21 @@
 
        //Create the platforms and the player character set to collide with the platforms
        createPlatforms(this);
-       player = new Player(this, 350, 2000);
+       player = new Player(this, 235, 13900);
        this.physics.add.collider(player, platforms);
-       player2 = new Player(this, 350, 2000);
+       player2 = new Player(this, 235+(game.scale.width/2), 13900);
        this.physics.add.collider(player2, platforms);
+
+       //Init single checkpoint
+       let checkpoint1 = new Checkpoint(this, player.x, player.y);
+       checkpoint1.disableBody(true, true);
+       player.lastCheckpoint = checkpoint1;
+
+       //Set player collision with checkpoints
+       this.physics.add.overlap(player, checkpoints, setCheckpoint);
+
+       //Set lava plat physics
+       this.physics.add.collider(player, LavaPlatform, playerInLava);
 
        //Set up user input
        cursors = this.input.keyboard.createCursorKeys();
@@ -97,16 +126,13 @@
 
        player.setScale(1, 1).refreshBody();
        player2.setScale(1, 1).refreshBody();
-       player.x = 235
-       player.y = 13900
-       player2.x = 235+(game.scale.width/2)
-       player2.y = 13900
        camera.y = -13700
     }
 
     function createPlatforms(scene)
     {
         platforms = scene.physics.add.staticGroup();
+        lava = scene.physics.add.staticGroup();
         skys = scene.physics.add.staticGroup();
 
         //basePlatform is the floor of the game
@@ -117,7 +143,7 @@
         let basePlatform = platforms.create(game.scale.width/2, 14000, 'platform');
         basePlatform.setScale(10, 1).refreshBody(); //scales the base platform in the x axis to cover the entire floor
 
-        LavaPlatform = platforms.create(game.scale.width/2, 15000, 'lava');
+        LavaPlatform = lava.create(game.scale.width/2, 15000, 'lava');
         LavaPlatform.setScale(10, 30).refreshBody(); //scales the base platform in the x axis to cover the entire floor
         //
         let wallPlatform = platforms.create(game.scale.width/2, 13000, 'platform');
@@ -149,6 +175,12 @@
                 platsizeloc = 100
             }
             let platform1 = platforms.create(platsizeloc, i*150+350, 'platform'); //creates the upper left platform
+
+            //Add a checkpoint on every 10 platforms
+            if(i % 10 == 0){ // Mod number adjusts plaform check freq.
+              let checkpoint1 = new Checkpoint(scene, platsizeloc, i*150+350 - 45);
+            }
+            
             platform1.setScale(0.2, 0.5).refreshBody();
         }
         platsizeloc =  200
@@ -177,6 +209,7 @@
     function update()
     {
         LavaPlatform.y = LavaPlatform.y - 0.3
+        LavaPlatform.refreshBody();
         //Player will not move in the x-axis unless a movement key is being pressed
         player.setVelocityX(0);
         player2.setVelocityX(0);
@@ -247,6 +280,18 @@
             player2.setVelocityY(-700);
             player2.currentJumps++;
         }
+    }
+
+    function setCheckpoint(player, checkpoint){
+      player.lastCheckpoint = checkpoint;
+      console.log("last is reset. x = " + checkpoint.x);
+      console.log("y = "  + checkpoint.y)
+    }
+
+    function playerInLava(player){
+      console.log("dead");
+      player.x = player.lastCheckpoint.x;
+      player.y = player.lastCheckpoint.y;
     }
 
     </script>
