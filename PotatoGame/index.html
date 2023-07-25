@@ -103,16 +103,21 @@
        player2 = new Player(this, 235+(game.scale.width/2), 13900);
        this.physics.add.collider(player2, platforms);
 
-       //Init single checkpoint
+       //Init static starting checkpoints
        let checkpoint1 = new Checkpoint(this, player.x, player.y);
+       let checkpoint2 = new Checkpoint(this, player2.x, player2.y);
        checkpoint1.disableBody(true, true);
        player.lastCheckpoint = checkpoint1;
+       checkpoint2.disableBody(true, true);
+       player2.lastCheckpoint = checkpoint2;
 
        //Set player collision with checkpoints
        this.physics.add.overlap(player, checkpoints, setCheckpoint);
+       this.physics.add.overlap(player2, checkpoints, setCheckpoint);
 
        //Set lava plat physics
        this.physics.add.collider(player, LavaPlatform, playerInLava);
+       this.physics.add.collider(player2, LavaPlatform, playerInLava);
 
        //Set up user input
        cursors = this.input.keyboard.createCursorKeys();
@@ -201,6 +206,12 @@
                 platsizeloc = 100
             }
             let platform1 = platforms.create(platsizeloc+(game.scale.width/2), i*150+350, 'platform'); //creates the upper left platform
+
+            //Add a checkpoint on every 10 platforms
+            if(i % 10 == 0){ // Mod number adjusts plaform check freq.
+              let checkpoint2 = new Checkpoint(scene, platsizeloc+(game.scale.width/2), i*150+350 - 45);
+            }
+
             platform1.setScale(0.2, 0.5).refreshBody();
         }
         //LavaPlatform.BringToTop()
