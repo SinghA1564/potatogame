@@ -29,6 +29,7 @@
     };
     class Player extends Phaser.Physics.Arcade.Sprite
     {
+        isAlive;
         lastCheckpoint;
         totalJumps = 1000;
         currentJumps = 0;
@@ -40,12 +41,28 @@
             this.setScale(2);
             this.setCollideWorldBounds(false);
             this.setGravityY(3000); //We will set gravity *per object* rather than for the scene!
+            this.isAlive = true;
+        }
+    }
+    class Potato extends Phaser.Physics.Arcade.Sprite
+    {
+        potatoOwner = -1;
+        PotatolastOwner = -1
+        constructor(scene, x, y)
+        {
+            super(scene, x, y, 'potato');
+            scene.add.existing(this);
+            scene.physics.add.existing(this);
+            this.setScale(0.035);
+            this.setCollideWorldBounds(false);
+            this.setGravityY(3000); //We will set gravity *per object* rather than for the scene!
         }
     }
 
     class Checkpoint extends Phaser.Physics.Arcade.Sprite{
       x;
       y;
+      isValid;
       constructor(scene, x, y){
           super(scene, x, y, 'checkFlag');
           scene.add.existing(this);
@@ -53,6 +70,7 @@
           this.setScale(0.25);
           this.x = x;
           this.y = y;
+          this.isValid = true;
           checkpoints.push(this);
       }
     }
@@ -71,8 +89,18 @@
     var cursors;
     var keys;
     var space;
+<<<<<<< HEAD
     var LavaPlatform;
     var camera;
+=======
+    var LavaPlatform
+    var camera
+    var potato
+
+    var potatoPlayer1
+    var potatoPlayer2
+    var globalThis
+>>>>>>> 32798b2ff1089aa2118c997e92c8a8b28ed9c21f
 
     //var newCamera = new camera(0, 0, 1000, 1000)
     //this.game.camera = newCamerarrentJumps = 0;
@@ -84,22 +112,37 @@
     {
         this.load.image('sky', 'assets/clouds.png');
         this.load.image('platform', 'assets/platform.png');
+        //this.load.image('platform', 'assets/crumble_platform.png');
         this.load.image('player', 'assets/wabbit.png');
         this.load.image('lava', 'assets/lava.png');
-        this.load.image('collapsing-platform','assets/rock_platform.png')
-        this.load.image('checkFlag', 'assets//checkpoint_flag_solidgreen.png')
+        this.load.image('potato', 'assets/pixelated-potato.png')
+        this.load.image('collapsing-platform','assets/rock_platform.png');
+        this.load.image('checkFlag', 'assets/checkpoint_flag_solidred.png');
+        this.load.image('checkFlag2', 'assets/checkpoint_flag_solidgreen.png');
+        this.load.image('transparentSheet', 'assets/transparent_box.png');
     }
 
     function create()
     {
+        globalThis = this
         camera = this.cameras.main;
         //Set the background origin to be at (0, 0) or top left corner of the image rather than the center of the image asset
        let background = this.add.tileSprite(0, 0, game.scale.width, game.scale.height, 'sky').setOrigin(0, 0);
        createPlatforms(this);
-       player = new Player(this, 350, 2000);
+       player = new Player(this, 100, 13935);
        this.physics.add.collider(player, platforms);
-       player2 = new Player(this, 350, 2000);
+       player2 = new Player(this, game.scale.width-100, 13935);
        this.physics.add.collider(player2, platforms);
+       this.physics.add.collider(player2, centerplatform);
+       this.physics.add.collider(player, centerplatform);
+
+       player.setScale(1, 1).refreshBody();
+       player2.setScale(1, 1).refreshBody();
+
+       potato = new Potato(this, player.x, player.y-20)
+       this.physics.add.collider(potato, platforms);
+       potatoPlayer1 = player
+       potatoPlayer2 = player2
 
        //Create collapsing platform
        collapsingPlatforms = this.physics.add.staticGroup();
@@ -109,18 +152,27 @@
        this.physics.add.collider(player,collapsingPlatforms,shakePlatform,checkOneWay,this);
        this.physics.add.collider(player2,collapsingPlatforms,shakePlatform,checkOneWay,this);
 
+<<<<<<< HEAD
        //Init static starting checkpoints
+=======
+       //Create initial checkpoints
+>>>>>>> 32798b2ff1089aa2118c997e92c8a8b28ed9c21f
        let checkpoint1 = new Checkpoint(this, player.x, player.y);
        let checkpoint2 = new Checkpoint(this, player2.x, player2.y);
-       checkpoint1.disableBody(true, true);
+       checkpoints.push(checkpoint1);
+       checkpoints.push(checkpoint2);
+       checkpoint1.setTexture('lava');
+       checkpoint2.setTexture('platform');
        player.lastCheckpoint = checkpoint1;
-       checkpoint2.disableBody(true, true);
        player2.lastCheckpoint = checkpoint2;
        
 
        //Set player collision with checkpoints
        this.physics.add.overlap(player, checkpoints, setCheckpoint);
        this.physics.add.overlap(player2, checkpoints, setCheckpoint);
+       this.physics.add.overlap(player, potato, pickupPotato);
+       this.physics.add.overlap(player2, potato, pickupPotato);
+       this.physics.add.overlap(potato, lava, resetPotato);
 
 
        //Set lava plat physics
@@ -131,10 +183,15 @@
         this.physics.add.collider(player, LavaPlatform, playerInLava);
         this.physics.add.collider(player2, LavaPlatform, playerInLava);
 
+<<<<<<< HEAD
         //Timer
         timerText = this.add.text(13800,13800, '', {fontSize: '32px', fill: '#000'});
         timer = this.time.delayedCall(101000, endOfTimer,[],this);
 
+=======
+        //Set lava and checkpoint collisions
+       this.physics.add.overlap(checkpoints, LavaPlatform, removeCheckpoint);
+>>>>>>> 32798b2ff1089aa2118c997e92c8a8b28ed9c21f
 
        //Set up user input
        cursors = this.input.keyboard.createCursorKeys();
@@ -143,8 +200,13 @@
        space.on('down', jump); //calls jump function when space is pressed
        uparrow = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
        uparrow.on('down', jump2);
+       Ekey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+       Ekey.on('down', potatoLaunch1, this);
+       Spacekey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+       Spacekey.on('down', potatoLaunch2, this);
        camera.width = game.scale.width // 1200 
        camera.height = 14000
+<<<<<<< HEAD
 
        //Player manipulation
        player.setScale(1, 1).refreshBody();
@@ -153,12 +215,15 @@
        player.y = 13900
        player2.x = 235+(game.scale.width/2)
        player2.y = 13900
+=======
+>>>>>>> 32798b2ff1089aa2118c997e92c8a8b28ed9c21f
        camera.y = -13700
     }
 
     function createPlatforms(scene)
     {
         platforms = scene.physics.add.staticGroup();
+        centerplatform = scene.physics.add.staticGroup();
         skys = scene.physics.add.staticGroup();
         lava = scene.physics.add.staticGroup();
 
@@ -171,7 +236,7 @@
         basePlatform.setScale(10, 1).refreshBody(); //scales the base platform in the x axis to cover the entire floor
         Checkpoint
 
-        let wallPlatform = platforms.create(game.scale.width/2, 13000, 'platform');
+        let wallPlatform = centerplatform.create(game.scale.width/2, 13000, 'platform');
         wallPlatform.setScale(0.15, 1000).refreshBody(); //scales the base platform in the x axis to cover the entire floor
 
         let wallPlatformRight = platforms.create(game.scale.width+40, 13000, 'platform');
@@ -239,7 +304,7 @@
       if (player.y < oneway.y) {
         return true;
       }
-  //otherwise disable collision
+  //otherwise disable collision -1
       return false;
     }
     
@@ -303,6 +368,10 @@
         //Player will not move in the x-axis unless a movement key is being pressed
         player.setVelocityX(0);
         player2.setVelocityX(0);
+<<<<<<< HEAD
+=======
+        potato.setVelocityX(potato.body.velocity.x*0.98);
+>>>>>>> 32798b2ff1089aa2118c997e92c8a8b28ed9c21f
         //When the player lands on the ground, reset currentJumps to 0
         if (player.body.touching.down)
         {
@@ -312,7 +381,6 @@
         {
             player2.currentJumps = 0;
         }
-
         //Handle player movements
         if (keys.A.isDown) {
             player.setVelocityX(-400);
@@ -332,6 +400,7 @@
         }
         // 100 > 200 200-100 100/2
         //console.log("y:256 "+ player.y + "x: " + player.x)
+<<<<<<< HEAD
         if (player.y > player2.y) {
             camera.y = camera.y+(((player.y*-1)+500)-camera.y)/10;
         } else {
@@ -351,6 +420,28 @@
 
     function endOfTimer() {
         timer.setText('');
+=======
+        if (player.y > player2.y && player.isAlive) {
+            camera.y = camera.y+(((player.y*-1)+500)-camera.y)/10;
+        } else if (player2.y > player.y && player2.isAlive) {
+            camera.y = camera.y+(((player2.y*-1)+500)-camera.y)/10;
+        } else if (player.isAlive){
+            camera.y = camera.y+(((player.y*-1)+500)-camera.y)/10;
+        }
+          else{
+            camera.y = camera.y+(((player2.y*-1)+500)-camera.y)/10;
+          }
+        camera.y = camera.y+game.scale.height/50
+        if (potato.potatoOwner != -1 && potato.potatoOwner != -2) {
+            potato.x = potato.potatoOwner.x
+            potato.y = potato.potatoOwner.y
+            potato.setGravityY(0);
+            potato.disableBody(true, false);
+        } else {
+            potato.setGravityY(1000); 
+            potato.enableBody(false, potato.x, potato.y, true, true)
+        }
+>>>>>>> 32798b2ff1089aa2118c997e92c8a8b28ed9c21f
     }
 
     function jump(event)
@@ -380,13 +471,63 @@
         }
     }
 
+    function potatoLaunch1(event) {
+        if (potato.potatoOwner == potatoPlayer1) {
+            potato.PotatolastOwner =  potatoPlayer1
+            potato.setVelocityY(-400)
+            potato.setVelocityX(Math.abs(potatoPlayer1.x-potatoPlayer2.x)*2)
+            //potato.setVelocityX(1000)
+            potato.potatoOwner = -2
+            globalThis.time.delayedCall(300, potatoFix, [], this);
+        }
+    }
+
+    function potatoLaunch2(event) {
+        if (potato.potatoOwner == potatoPlayer2) {
+            potato.PotatolastOwner =  potatoPlayer2
+            potato.setVelocityY(-400)
+            //potato.setVelocityX(-1000)
+            potato.setVelocityX(Math.abs(potatoPlayer1.x-potatoPlayer2.x)*-2)
+            potato.potatoOwner = -2
+            globalThis.time.delayedCall(300, potatoFix, [], this);
+        }
+    }
+
+    function potatoFix() {
+        potato.potatoOwner = -1
+    }
     function setCheckpoint(player, checkpoint){
+      //Assign last touched checkpoint
       player.lastCheckpoint = checkpoint;
+      //Change check to green flag
+      checkpoint.setTexture('checkFlag2');
+    }
+
+    function pickupPotato(player, currentPotato){
+        if (potato.potatoOwner != -2) {
+            potato.PotatolastOwner = player
+            potato.potatoOwner = player
+        }
+    }
+
+    function resetPotato(potato, lava) {
+        potato.potatoOwner = potato.PotatolastOwner
     }
 
     function playerInLava(player){
-      player.x = player.lastCheckpoint.x;
-      player.y = player.lastCheckpoint.y;
+      if(player.lastCheckpoint.isValid){
+        player.x = player.lastCheckpoint.x;
+        player.y = player.lastCheckpoint.y;
+      }
+      else{
+        player.disableBody(true, true);
+        player.isAlive = false;
+      }//else would be game over, to be added here later
+    }
+
+    function removeCheckpoint(checkpoint){
+        checkpoint.isValid = false;
+        checkpoint.disableBody(true, true);
     }
 
     </script>
