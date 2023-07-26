@@ -89,10 +89,6 @@
     var cursors;
     var keys;
     var space;
-<<<<<<< HEAD
-    var LavaPlatform;
-    var camera;
-=======
     var LavaPlatform
     var camera
     var potato
@@ -100,7 +96,6 @@
     var potatoPlayer1
     var potatoPlayer2
     var globalThis
->>>>>>> 32798b2ff1089aa2118c997e92c8a8b28ed9c21f
 
     //var newCamera = new camera(0, 0, 1000, 1000)
     //this.game.camera = newCamerarrentJumps = 0;
@@ -152,11 +147,8 @@
        this.physics.add.collider(player,collapsingPlatforms,shakePlatform,checkOneWay,this);
        this.physics.add.collider(player2,collapsingPlatforms,shakePlatform,checkOneWay,this);
 
-<<<<<<< HEAD
-       //Init static starting checkpoints
-=======
+
        //Create initial checkpoints
->>>>>>> 32798b2ff1089aa2118c997e92c8a8b28ed9c21f
        let checkpoint1 = new Checkpoint(this, player.x, player.y);
        let checkpoint2 = new Checkpoint(this, player2.x, player2.y);
        checkpoints.push(checkpoint1);
@@ -183,15 +175,12 @@
         this.physics.add.collider(player, LavaPlatform, playerInLava);
         this.physics.add.collider(player2, LavaPlatform, playerInLava);
 
-<<<<<<< HEAD
         //Timer
         timerText = this.add.text(13800,13800, '', {fontSize: '32px', fill: '#000'});
         timer = this.time.delayedCall(101000, endOfTimer,[],this);
 
-=======
         //Set lava and checkpoint collisions
        this.physics.add.overlap(checkpoints, LavaPlatform, removeCheckpoint);
->>>>>>> 32798b2ff1089aa2118c997e92c8a8b28ed9c21f
 
        //Set up user input
        cursors = this.input.keyboard.createCursorKeys();
@@ -206,7 +195,6 @@
        Spacekey.on('down', potatoLaunch2, this);
        camera.width = game.scale.width // 1200 
        camera.height = 14000
-<<<<<<< HEAD
 
        //Player manipulation
        player.setScale(1, 1).refreshBody();
@@ -215,8 +203,6 @@
        player.y = 13900
        player2.x = 235+(game.scale.width/2)
        player2.y = 13900
-=======
->>>>>>> 32798b2ff1089aa2118c997e92c8a8b28ed9c21f
        camera.y = -13700
     }
 
@@ -368,10 +354,7 @@
         //Player will not move in the x-axis unless a movement key is being pressed
         player.setVelocityX(0);
         player2.setVelocityX(0);
-<<<<<<< HEAD
-=======
         potato.setVelocityX(potato.body.velocity.x*0.98);
->>>>>>> 32798b2ff1089aa2118c997e92c8a8b28ed9c21f
         //When the player lands on the ground, reset currentJumps to 0
         if (player.body.touching.down)
         {
@@ -400,7 +383,6 @@
         }
         // 100 > 200 200-100 100/2
         //console.log("y:256 "+ player.y + "x: " + player.x)
-<<<<<<< HEAD
         if (player.y > player2.y) {
             camera.y = camera.y+(((player.y*-1)+500)-camera.y)/10;
         } else {
@@ -408,19 +390,15 @@
         }
 
         camera.y = camera.y+game.scale.height/50;
-
+        //timer
         timerText.setPosition(295,player.y-600);
         timeRemaining = Math.round(timer.getRemainingSeconds());
         if (timeRemaining >0) {
             timerText.setText(timeRemaining);
         } else {
-            timerText.setText('Fuck you!')
+            timerText.setText('')
         }
-    }
-
-    function endOfTimer() {
-        timer.setText('');
-=======
+    
         if (player.y > player2.y && player.isAlive) {
             camera.y = camera.y+(((player.y*-1)+500)-camera.y)/10;
         } else if (player2.y > player.y && player2.isAlive) {
@@ -441,7 +419,9 @@
             potato.setGravityY(1000); 
             potato.enableBody(false, potato.x, potato.y, true, true)
         }
->>>>>>> 32798b2ff1089aa2118c997e92c8a8b28ed9c21f
+    }
+    function endOfTimer() {
+        timerText.setText('');
     }
 
     function jump(event)
