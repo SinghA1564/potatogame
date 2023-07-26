@@ -19,10 +19,7 @@
         physics: {
             default: 'arcade',
         },
-<<<<<<< HEAD
-=======
 
->>>>>>> 7d53788076db8351c4b726ceda95079648364bfd
         scene: {
             preload: preload,
             create: create,
@@ -33,12 +30,8 @@
 
     class Player extends Phaser.Physics.Arcade.Sprite
     {
-<<<<<<< HEAD
-        totalJumps = 1000;
-=======
         lastCheckpoint;
-        totalJumps = 2;
->>>>>>> 7d53788076db8351c4b726ceda95079648364bfd
+        totalJumps = 1000;
         currentJumps = 0;
         constructor(scene, x, y)
         {
@@ -72,12 +65,8 @@
     var platforms; 
     var skys;
     var player;
-<<<<<<< HEAD
     var collapsingPlatforms;
-=======
     var checkpoints = [];
->>>>>>> 7d53788076db8351c4b726ceda95079648364bfd
-
     //Keyboard controls
     var cursors;
     var keys;
@@ -97,11 +86,8 @@
         this.load.image('platform', 'assets/platform.png');
         this.load.image('player', 'assets/wabbit.png');
         this.load.image('lava', 'assets/lava.png');
-<<<<<<< HEAD
         this.load.image('collapsing-platform','assets/rock_platform.png')
-=======
         this.load.image('checkFlag', 'assets//checkpoint_flag_solidgreen.png')
->>>>>>> 7d53788076db8351c4b726ceda95079648364bfd
     }
 
     function create()
@@ -118,7 +104,6 @@
        player2 = new Player(this, 235+(game.scale.width/2), 13900);
        this.physics.add.collider(player2, platforms);
 
-<<<<<<< HEAD
        //Create collapsing platform
        collapsingPlatforms = this.physics.add.staticGroup();
        collapsingPlatforms.create(1000,7000, 'collapsing-platform');
@@ -126,7 +111,6 @@
        collapsingPlatforms.create(400, 6000,'collapsing-platform');
        this.physics.add.collider(player,collapsingPlatforms,shakePlatform,checkOneWay,this);
        this.physics.add.collider(player2,collapsingPlatforms,shakePlatform,checkOneWay,this);
-=======
        //Init static starting checkpoints
        let checkpoint1 = new Checkpoint(this, player.x, player.y);
        let checkpoint2 = new Checkpoint(this, player2.x, player2.y);
@@ -142,7 +126,6 @@
        //Set lava plat physics
        this.physics.add.collider(player, LavaPlatform, playerInLava);
        this.physics.add.collider(player2, LavaPlatform, playerInLava);
->>>>>>> 7d53788076db8351c4b726ceda95079648364bfd
 
        //Set up user input
        cursors = this.input.keyboard.createCursorKeys();
