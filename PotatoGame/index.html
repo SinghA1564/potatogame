@@ -28,6 +28,7 @@
     };
     class Player extends Phaser.Physics.Arcade.Sprite
     {
+        isAlive;
         lastCheckpoint;
         totalJumps = 2;
         currentJumps = 0;
@@ -39,6 +40,7 @@
             this.setScale(2);
             this.setCollideWorldBounds(false);
             this.setGravityY(3000); //We will set gravity *per object* rather than for the scene!
+            this.isAlive = true;
         }
     }
 
@@ -323,11 +325,16 @@
         }
         // 100 > 200 200-100 100/2
         //console.log("y:256 "+ player.y + "x: " + player.x)
-        if (player.y > player2.y) {
-            camera.y = camera.y+(((player.y*-1)+500)-camera.y)/10
-        } else {
-            camera.y = camera.y+(((player2.y*-1)+500)-camera.y)/10
+        if (player.y > player2.y && player.isAlive) {
+            camera.y = camera.y+(((player.y*-1)+500)-camera.y)/10;
+        } else if (player2.y > player.y && player2.isAlive) {
+            camera.y = camera.y+(((player2.y*-1)+500)-camera.y)/10;
+        } else if (player.isAlive){
+            camera.y = camera.y+(((player.y*-1)+500)-camera.y)/10;
         }
+          else{
+            camera.y = camera.y+(((player2.y*-1)+500)-camera.y)/10;
+          }
         camera.y = camera.y+game.scale.height/50
     }
 
@@ -372,6 +379,7 @@
       }
       else{
         player.disableBody(true, true);
+        player.isAlive = false;
       }//else would be game over, to be added here later
     }
 
