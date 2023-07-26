@@ -45,6 +45,7 @@
     class Checkpoint extends Phaser.Physics.Arcade.Sprite{
       x;
       y;
+      isValid;
       constructor(scene, x, y){
           super(scene, x, y, 'checkFlag');
           scene.add.existing(this);
@@ -52,6 +53,7 @@
           this.setScale(0.25);
           this.x = x;
           this.y = y;
+          this.isValid = true;
           checkpoints.push(this);
       }
     }
@@ -85,7 +87,8 @@
         this.load.image('player', 'assets/wabbit.png');
         this.load.image('lava', 'assets/lava.png');
         this.load.image('collapsing-platform','assets/rock_platform.png')
-        this.load.image('checkFlag', 'assets//checkpoint_flag_solidgreen.png')
+        this.load.image('checkFlag', 'assets//checkpoint_flag_solidred.png')
+        this.load.image('checkFlag2', 'assets/checkpoint_flag_solidgreen.png');
     }
 
     function create()
@@ -122,6 +125,9 @@
         //Set lava plat physics
         this.physics.add.collider(player, LavaPlatform, playerInLava);
         this.physics.add.collider(player2, LavaPlatform, playerInLava);
+
+        //Set lava and checkpoint collisions
+       this.physics.add.overlap(checkpoints, LavaPlatform, removeCheckpoint);
 
        //Set up user input
        cursors = this.input.keyboard.createCursorKeys();
@@ -353,12 +359,25 @@
     }
 
     function setCheckpoint(player, checkpoint){
+      //Assign last touched checkpoint
       player.lastCheckpoint = checkpoint;
+      //Change check to green flag
+      checkpoint.setTexture('checkFlag2');
     }
 
     function playerInLava(player){
-      player.x = player.lastCheckpoint.x;
-      player.y = player.lastCheckpoint.y;
+      if(player.lastCheckpoint.isValid){
+        player.x = player.lastCheckpoint.x;
+        player.y = player.lastCheckpoint.y;
+      }
+      else{
+        player.disableBody(true, true);
+      }//else would be game over, to be added here later
+    }
+
+    function removeCheckpoint(checkpoint){
+        checkpoint.isValid = false;
+        checkpoint.disableBody(true, true);
     }
 
     </script>
