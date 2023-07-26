@@ -86,9 +86,10 @@
         this.load.image('platform', 'assets/platform.png');
         this.load.image('player', 'assets/wabbit.png');
         this.load.image('lava', 'assets/lava.png');
-        this.load.image('collapsing-platform','assets/rock_platform.png')
-        this.load.image('checkFlag', 'assets//checkpoint_flag_solidred.png')
+        this.load.image('collapsing-platform','assets/rock_platform.png');
+        this.load.image('checkFlag', 'assets/checkpoint_flag_solidred.png');
         this.load.image('checkFlag2', 'assets/checkpoint_flag_solidgreen.png');
+        this.load.image('transparentSheet', 'assets/transparent_box.png');
     }
 
     function create()
@@ -97,9 +98,9 @@
         //Set the background origin to be at (0, 0) or top left corner of the image rather than the center of the image asset
        let background = this.add.tileSprite(0, 0, game.scale.width, game.scale.height, 'sky').setOrigin(0, 0);
        createPlatforms(this);
-       player = new Player(this, 350, 2000);
+       player = new Player(this, 100, 13935);
        this.physics.add.collider(player, platforms);
-       player2 = new Player(this, 350, 2000);
+       player2 = new Player(this, game.scale.width-100, 13935);
        this.physics.add.collider(player2, platforms);
 
        //Create collapsing platform
@@ -110,11 +111,14 @@
        this.physics.add.collider(player,collapsingPlatforms,shakePlatform,checkOneWay,this);
        this.physics.add.collider(player2,collapsingPlatforms,shakePlatform,checkOneWay,this);
 
+       //Create initial checkpoints
        let checkpoint1 = new Checkpoint(this, player.x, player.y);
        let checkpoint2 = new Checkpoint(this, player2.x, player2.y);
-       checkpoint1.disableBody(true, true);
+       checkpoints.push(checkpoint1);
+       checkpoints.push(checkpoint2);
+       checkpoint1.setTexture('lava');
+       checkpoint2.setTexture('platform');
        player.lastCheckpoint = checkpoint1;
-       checkpoint2.disableBody(true, true);
        player2.lastCheckpoint = checkpoint2;
        
 
@@ -141,10 +145,6 @@
 
        player.setScale(1, 1).refreshBody();
        player2.setScale(1, 1).refreshBody();
-       player.x = 235
-       player.y = 13900
-       player2.x = 235+(game.scale.width/2)
-       player2.y = 13900
        camera.y = -13700
     }
 
