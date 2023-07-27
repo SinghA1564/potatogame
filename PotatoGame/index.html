@@ -106,7 +106,7 @@
     var globalThis
     var mainmenu
     var GameOver
-
+    var Clock
     var gameStart = false
 
     function preload()
@@ -126,6 +126,11 @@
         this.load.image('ground', 'assets/ground.png');
         this.load.image('pillar', 'assets/pillar.png');
         this.load.image('gameover', 'assets/gameover_text.png');
+        this.load.image('Timer1', 'assets/timer_basic.png');
+        this.load.image('Timer2', 'assets/timer_fire1.png');
+        this.load.image('Timer3', 'assets/timer_fire2.png');
+        this.load.image('Timer4', 'assets/timer_fire3.png');
+        this.load.image('Timer5', 'assets/timer_fire4.png');
     }
 
     function create()
@@ -183,7 +188,7 @@
         this.physics.add.collider(player2, LavaPlatform, playerInLava);
 
         //Timer
-        timerText = this.add.text(13800,13800, '', {fontSize: '32px', fill: '#FFFFFF'});
+        timerText = this.add.text(13800,13800, '', {fontSize: '32px', fill: '#000'});
         //timer = this.time.delayedCall(10000, endOfTimer,[],this);
 
 
@@ -222,7 +227,6 @@
             sky = skys.create(game.scale.width/2, i*3000, 'sky');
             sky.setScale(1).refreshBody();
         }
-
 
 
         let wallPlatform = centerplatform.create(game.scale.width/2, 13000, 'pillar');
@@ -301,6 +305,9 @@
                 platform1.setScale(0.5, 0.75).refreshBody();
             }
         }
+
+        Clock = skys.create(0, 0, 'Timer1')
+        Clock.setScale(1, 1).refreshBody();
         mainmenu = skys.create(game.config.height/2, game.config.height/2, 'title');
         mainmenuClick = skys.create(game.config.height/2, game.config.height/2, 'start');
         mainmenuClick.setScale(02, 2).refreshBody();
@@ -420,10 +427,27 @@
              }
             camera.y = camera.y+game.scale.height/50
             //Timer
-            timerText.setPosition(game.scale.width/2-20 , camera.y*-1+50);
+            if (Math.round(timer.getRemainingSeconds()) != 10) {
+                timerText.setPosition(game.scale.width/2-12 , camera.y*-1+75);
+            } else {
+                timerText.setPosition(game.scale.width/2-20 , camera.y*-1+75);
+            }
+            Clock.setPosition(game.scale.width/2 , camera.y*-1+100);
+            if (Math.round(timer.getRemainingSeconds()) == 10 || Math.round(timer.getRemainingSeconds()) == 9 || Math.round(timer.getRemainingSeconds()) == 8) {
+                Clock.setTexture('Timer1')
+            } else if (Math.round(timer.getRemainingSeconds()) == 7 || Math.round(timer.getRemainingSeconds()) == 6) {
+                Clock.setTexture('Timer2')
+            } else if (Math.round(timer.getRemainingSeconds()) == 5 || Math.round(timer.getRemainingSeconds()) == 4) {
+                Clock.setTexture('Timer3')
+            } else if (Math.round(timer.getRemainingSeconds()) == 3 || Math.round(timer.getRemainingSeconds()) == 2) {
+                Clock.setTexture('Timer4')
+            } else if (Math.round(timer.getRemainingSeconds()) == 1 || Math.round(timer.getRemainingSeconds()) == 0) {
+                Clock.setTexture('Timer5')
+                Clock.setPosition(game.scale.width/2-12 , camera.y*-1+100);
+            }
             timeRemaining = Math.round(timer.getRemainingSeconds());
 
-            GameOver.setPosition(game.scale.width/2-20 , camera.y*-1+500);
+            GameOver.setPosition(game.scale.width/2 , camera.y*-1+500);
         
             if (timeRemaining >0) {
                 timerText.setText(timeRemaining);
