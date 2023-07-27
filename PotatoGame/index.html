@@ -19,6 +19,7 @@
         physics: {
             default: 'arcade',
         },
+
         scene: {
             preload: preload,
             create: create,
@@ -82,7 +83,8 @@
     var player;
     var collapsingPlatforms;
     var checkpoints = [];
-
+    var timer;
+    var timerText;
     //Keyboard controls
     var cursors;
     var keys;
@@ -148,6 +150,7 @@
        this.physics.add.collider(player,collapsingPlatforms,shakePlatform,checkOneWay,this);
        this.physics.add.collider(player2,collapsingPlatforms,shakePlatform,checkOneWay,this);
 
+
        //Create initial checkpoints
        let checkpoint1 = new Checkpoint(this, player.x, player.y);
        let checkpoint2 = new Checkpoint(this, player2.x, player2.y);
@@ -166,9 +169,18 @@
        this.physics.add.overlap(player2, potato, pickupPotato);
        this.physics.add.overlap(potato, lava, resetPotato);
 
+
+       //Set lava plat physics
+       this.physics.add.collider(player, LavaPlatform, playerInLava);
+       this.physics.add.collider(player2, LavaPlatform, playerInLava);
+
         //Set lava plat physics
         this.physics.add.collider(player, LavaPlatform, playerInLava);
         this.physics.add.collider(player2, LavaPlatform, playerInLava);
+
+        //Timer
+        timerText = this.add.text(13800,13800, '', {fontSize: '32px', fill: '#000'});
+        timer = this.time.delayedCall(101000, endOfTimer,[],this);
 
         //Set lava and checkpoint collisions
        this.physics.add.overlap(checkpoints, LavaPlatform, removeCheckpoint);
@@ -186,6 +198,14 @@
        Spacekey.on('down', potatoLaunch2, this);
        camera.width = game.scale.width // 1200 
        camera.height = 14000
+
+       //Player manipulation
+       player.setScale(1, 1).refreshBody();
+       player2.setScale(1, 1).refreshBody();
+       player.x = 235
+       player.y = 13900
+       player2.x = 235+(game.scale.width/2)
+       player2.y = 13900
        camera.y = -13700
     }
 
@@ -313,6 +333,7 @@
         }
       });
     }
+    
 
     function destroyGameObject(gameObject) {
       gameObject.destroy();
@@ -366,6 +387,15 @@
         }
         // 100 > 200 200-100 100/2
         //console.log("y:256 "+ player.y + "x: " + player.x)
+        if (player.y > player2.y) {
+            camera.y = camera.y+(((player.y*-1)+500)-camera.y)/10;
+        } else {
+            camera.y = camera.y+(((player2.y*-1)+500)-camera.y)/10;
+        }
+
+        camera.y = camera.y+game.scale.height/50;
+
+    
         if (player.y > player2.y && player.isAlive) {
             camera.y = camera.y+(((player.y*-1)+500)-camera.y)/10;
         } else if (player2.y > player.y && player2.isAlive) {
@@ -386,6 +416,22 @@
             potato.setGravityY(1000); 
             potato.enableBody(false, potato.x, potato.y, true, true)
         }
+        //timer
+        if (player.y>player2.y) {
+            timerText.setPosition(295,player.y-600);
+        } else {
+            timerText.setPosition(295,player2.y-600);
+        }
+        timeRemaining = Math.round(timer.getRemainingSeconds());
+        
+        if (timeRemaining >0) {
+            timerText.setText(timeRemaining);
+        } else {
+            timerText.setText('')
+        }
+     }   
+    function endOfTimer() {
+        timerText.setText('');
     }
 
     function jump(event)
@@ -449,8 +495,10 @@
 
     function pickupPotato(player, currentPotato){
         if (potato.potatoOwner != -2) {
-            potato.PotatolastOwner = player
-            potato.potatoOwner = player
+            potato.PotatolastOwner = player;
+            potato.potatoOwner = player;
+            timer.remove();
+            timer = globalThis.time.delayedCall(101000, endOfTimer,[],globalThis);
         }
     }
 
