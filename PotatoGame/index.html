@@ -36,7 +36,7 @@
     {
         isAlive;
         lastCheckpoint;
-        totalJumps = 2;
+        totalJumps = 1000;
         currentJumps = 0;
         constructor(scene, x, y)
         {
@@ -123,6 +123,7 @@
         this.load.image('ground', 'assets/ground.png');
         this.load.image('pillar', 'assets/pillar.png');
         this.load.image('gameover', 'assets/gameover_text.png');
+        this.load.image('gamewon','assets/you_win.png');
     }
 
     function create()
@@ -191,6 +192,7 @@
         //Set lava and checkpoint collisions
        this.physics.add.overlap(checkpoints, LavaPlatform, removeCheckpoint);
 
+
        //Set up user input
        cursors = this.input.keyboard.createCursorKeys();
        keys = this.input.keyboard.addKeys('A, D');
@@ -230,11 +232,9 @@
         wallPlatformRight.setScale(0.15, 1000).refreshBody();
 
         let wallPlatformLeft = platforms.create(-40, 13000, 'wall');
-        wallPlatformLeft.setScale(0.15, 1000).refreshBody();
-
-        platforms.create(250, 350, 'platform'); //creates the upper left platform
-        platforms.create(950, 500, 'platform'); //creates the bottome right platform
-        
+        wallPlatformLeft.setScale(0.15, 1000).refreshBody();        
+     
+     
         let platsizeloc =  200
         for (let i=2; i < 46*2.5; i++) { // player 1 platforms
             let plateRandom
@@ -297,7 +297,11 @@
 
         GameOver = skys.create(0, 0, 'gameover')
         GameOver.setScale(7, 7).refreshBody();
-        GameOver.disableBody(true, true)
+        GameOver.disableBody(true, true);
+
+        gameWon = skys.create(0,0,'gamewon')
+        gameWon.setScale(0.2,0.2).refreshBody();
+        gameWon.disableBody(true,true);
     }
     
     function checkOneWay(player, oneway) {
@@ -423,6 +427,7 @@
             timeRemaining = Math.round(timer.getRemainingSeconds());
 
             GameOver.setPosition(game.scale.width/2-20 , camera.y*-1+500);
+            gameWon.setPosition(game.scale.width/2-10, camera.y*-1+300);
         
             if (timeRemaining >0) {
                 timerText.setText(timeRemaining);
@@ -439,6 +444,10 @@
         } else {
             potato.setGravityY(1000); 
             potato.enableBody(false, potato.x, potato.y, true, true)
+        }
+        console.log(potato.y);
+        if (potato.y <2200) {
+            RungameWon();
         }
      }   
     function endOfTimer() {
@@ -517,7 +526,7 @@
                 potato.potatoOwner = player
                 potato.PotatolastOwner = player
                 timer.remove();
-                timer = globalThis.time.delayedCall(10000, endOfTimer,[],globalThis);
+                timer = globalThis.time.delayedCall(100000, endOfTimer,[],globalThis);
         }  
     }
 
@@ -557,6 +566,16 @@
         potatoPlayer2.isAlive = false;
         GameOver.enableBody(false, GameOver.x, GameOver.y, true, true)
         globalThis.time.delayedCall(3000, ResetGame,[],globalThis);
+    }
+
+    function RungameWon() {
+            potato.disableBody(true,true)
+            potatoPlayer1.disableBody(true, true);
+            potatoPlayer2.disableBody(true, true);
+            LavaPlatform.disableBody(true,true);
+            timerText.setText('');
+            gameWon.enableBody(false,gameWon.x,gameWon.y,true,true);
+            timer = globalThis.time.delayedCall(1000000, ResetGame,[],globalThis);
     }
 
     function ResetGame() {
