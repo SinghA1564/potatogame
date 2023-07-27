@@ -21,6 +21,9 @@
         scale: {autoCenter: Phaser.Scale.CENTER_BOTH},
         physics: {
             default: 'arcade',
+            //arcade: {
+           //     debug: true
+           // }
         },
 
         scene: {
@@ -45,7 +48,7 @@
             scene.physics.add.existing(this);
             this.setScale(2);
             this.setCollideWorldBounds(false);
-            this.setGravityY(3000); //We will set gravity *per object* rather than for the scene!
+            this.setGravityY(2500); //3000 We will set gravity *per object* rather than for the scene!
             this.isAlive = true;
         }
     }
@@ -114,7 +117,7 @@
         this.load.image('player', 'assets/wabbit.png');
         this.load.image('lava', 'assets/lava.png');
         this.load.image('potato', 'assets/pixelated-potato.png')
-        this.load.image('collapsing-platform','assets/rock_platform.png');
+        this.load.image('collapsing-platform','assets/crumble_platform.png');
         this.load.image('checkFlag', 'assets/checkpoint_flag_solidred.png');
         this.load.image('checkFlag2', 'assets/checkpoint_flag_solidgreen.png');
         this.load.image('title', 'assets/title_screen.png');
@@ -140,6 +143,9 @@
        this.physics.add.collider(player2, centerplatform);
        this.physics.add.collider(player, centerplatform);
 
+       this.physics.add.collider(player,collapsingPlatforms,shakePlatform,checkOneWay,this);
+       this.physics.add.collider(player2,collapsingPlatforms,shakePlatform,checkOneWay,this);
+
        player.setScale(1, 1).refreshBody();
        player2.setScale(1, 1).refreshBody();
 
@@ -149,13 +155,6 @@
        potatoPlayer1 = player
        potatoPlayer2 = player2
 
-       //Create collapsing platform
-       collapsingPlatforms = this.physics.add.staticGroup();
-       collapsingPlatforms.create(1000,7000, 'collapsing-platform');
-       collapsingPlatforms.create(500,5000,'collapsing-platform');
-       collapsingPlatforms.create(400, 6000,'collapsing-platform');
-       this.physics.add.collider(player,collapsingPlatforms,shakePlatform,checkOneWay,this);
-       this.physics.add.collider(player2,collapsingPlatforms,shakePlatform,checkOneWay,this);
 
 
        //Create initial checkpoints
@@ -200,12 +199,13 @@
        uparrow.on('down', jump2);
        Ekey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
        Ekey.on('down', potatoLaunch1, this);
-       Spacekey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+       Spacekey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.NUMPAD_ZERO);
        Spacekey.on('down', potatoLaunch2, this);
        this.input.on('pointerdown', startgame, this)
        camera.width = game.scale.width // 1200 
        camera.height = 14000
     }
+       
 
     function createPlatforms(scene)
     {
@@ -214,6 +214,8 @@
         skys = scene.physics.add.staticGroup();
         lava = scene.physics.add.staticGroup();
         menugroup = scene.physics.add.staticGroup();
+        collapsingPlatforms = scene.physics.add.staticGroup();
+
 
 
         for (let i=1; i < 100; i++) {
@@ -236,7 +238,7 @@
         platforms.create(950, 500, 'platform'); //creates the bottome right platform
         
         let platsizeloc =  200
-        for (let i=2; i < 46*2.5; i++) { // player 1 platforms
+        for (let i=2; i < 91; i++) { // player 1 platforms
             let plateRandom
             if (platsizeloc == 100) {
                 plateRandom = Phaser.Math.FloatBetween(2,1)*150
@@ -255,13 +257,21 @@
             //Add a checkpoint on every 10 platforms
             if(i % 10 == 0){ // Mod number adjusts plaform check freq.
               let checkpoint1 = new Checkpoint(scene, platsizeloc, i*150+350 - 45);
+              platform1 = platforms.create(platsizeloc, i*150+350, 'platform');
+              platform1.setScale(0.5, 0.75).refreshBody();
+            } else if (i % 7 == 0) {
+                platform1 = collapsingPlatforms.create(platsizeloc, i*150+350, 'collapsing-platform');
+                platform1.setScale(0.5, 0.75).refreshBody();
+                platform1.body.setSize(110, 30);
+            } else {
+                platform1 = platforms.create(platsizeloc, i*150+350, 'platform');
+                platform1.setScale(0.5, 0.75).refreshBody();
             }
-            let platform1 = platforms.create(platsizeloc, i*150+350, 'platform'); //creates the upper left platform
 
-            platform1.setScale(0.5, 0.75).refreshBody();
+
         }
         platsizeloc =  200
-        for (let i=2; i < 46*2.5; i++) { // player 2 platforms
+        for (let i=2; i < 91; i++) { // player 2 platforms
             let plateRandom
             if (platsizeloc == 100) {
                 plateRandom = Phaser.Math.FloatBetween(2,1)*150
@@ -279,10 +289,17 @@
             }
             //Add a checkpoint on every 10 platforms
             if(i % 10 == 0){ // Mod number adjusts plaform check freq.
-              let checkpoint2 = new Checkpoint(scene, platsizeloc+(game.scale.width/2), i*150+350 - 45);
+                let checkpoint2 = new Checkpoint(scene, platsizeloc+(game.scale.width/2), i*150+350 - 45);
+                let platform1 = platforms.create(platsizeloc+(game.scale.width/2), i*150+350, 'platform');
+                platform1.setScale(0.5, 0.75).refreshBody();
+            } else if (i % 7 == 0){
+                let platform1 = collapsingPlatforms.create(platsizeloc+(game.scale.width/2), i*150+350, 'collapsing-platform');
+                platform1.setScale(0.5, 0.75).refreshBody();
+                platform1.body.setSize(110, 30);
+            } else {
+                let platform1 = platforms.create(platsizeloc+(game.scale.width/2), i*150+350, 'platform');
+                platform1.setScale(0.5, 0.75).refreshBody();
             }
-            let platform1 = platforms.create(platsizeloc+(game.scale.width/2), i*150+350, 'platform'); //creates the upper left platform
-            platform1.setScale(0.5, 0.75).refreshBody();
         }
         mainmenu = skys.create(game.config.height/2, game.config.height/2, 'title');
         mainmenuClick = skys.create(game.config.height/2, game.config.height/2, 'start');
@@ -301,12 +318,7 @@
     }
     
     function checkOneWay(player, oneway) {
-  //if player is higher up the screen then the plaform then enable the collision
-      if (player.y < oneway.y) {
-        return true;
-      }
-  //otherwise disable collision -1
-      return false;
+        return true
     }
     
     function shakePlatform(player, platform) {
@@ -326,29 +338,18 @@
             ease: 'Linear',
             duration: 50,
             onComplete: function() {
-                destroyPlatform.call(ourScene, platform);
+                platform.disableBody(true, true)
+                globalThis.time.delayedCall(3000, RevivePlatform, [platform], this);
             }
         });
       }
     }
     
-    function destroyPlatform(platform) {
-     var tween = this.tweens.add({
-        targets: platform,
-        alpha: 0,
-        y: "+=25",
-        ease: 'Linear',
-        duration: 100,
-        onComplete: function() {
-            destroyGameObject(platform);
-        }
-      });
+
+    function RevivePlatform(platform) {
+        platform.enableBody(false, platform.x, platform.y, true, true)
     }
     
-
-    function destroyGameObject(gameObject) {
-      gameObject.destroy();
-    }
 
     function update()
     {
@@ -381,32 +382,32 @@
         player2.setVelocityX(0);
         potato.setVelocityX(potato.body.velocity.x*0.98);
         //When the player lands on the ground, reset currentJumps to 0
-        if (player.body.touching.down)
-        {
-            player.currentJumps = 0;
-        }
-        if (player2.body.touching.down)
-        {
-            player2.currentJumps = 0;
-        }
-        //Handle player movements
-        if (keys.A.isDown) {
-            player.setVelocityX(-400);
-        }
-        if (cursors.left.isDown)
-        {
-            player2.setVelocityX(-400);
-        }
-
-        if (keys.D.isDown)
-        {
-            player.setVelocityX(400);
-        }
-        if (cursors.right.isDown)
-        {
-            player2.setVelocityX(400);
-        }
         if (gameStart) { 
+            if (player.body.touching.down)
+            {
+                player.currentJumps = 0;
+            }
+            if (player2.body.touching.down)
+            {
+                player2.currentJumps = 0;
+            }
+            //Handle player movements
+            if (keys.A.isDown) {
+                player.setVelocityX(-400);
+            }
+            if (cursors.left.isDown)
+            {
+                player2.setVelocityX(-400);
+            }
+
+            if (keys.D.isDown)
+            {
+               player.setVelocityX(400);
+            }
+            if (cursors.right.isDown)
+            {
+                player2.setVelocityX(400);
+         }
             if (player.y > player2.y && player.isAlive) {
                 camera.y = camera.y+(((player.y*-1)+500)-camera.y)/10;
             } else if (player2.y > player.y && player2.isAlive) {
@@ -448,28 +449,32 @@
 
     function jump(event)
     {
-        if (player.body.touching.down)
-        {
-            player.setVelocityY(-800);
-            player.currentJumps++; //~ player.currentJumps = player.currentJumps + 1
-        }
-        else if (player.currentJumps < player.totalJumps)
-        {
-            player.setVelocityY(-700);
-            player.currentJumps++;
+        if (gameStart) {
+            if (player.body.touching.down)
+            {
+                player.setVelocityY(-800);
+                player.currentJumps++; //~ player.currentJumps = player.currentJumps + 1
+            }
+            else if (player.currentJumps < player.totalJumps)
+            {
+                player.setVelocityY(-700);
+                player.currentJumps++;
+            }
         }
     }
     function jump2(event)
     {
-        if (player2.body.touching.down)
-        {
-            player2.setVelocityY(-800);
-            player2.currentJumps++; //~ player.currentJumps = player.currentJumps + 1
-        }
-        else if (player2.currentJumps < player2.totalJumps)
-        {
-            player2.setVelocityY(-700);
-            player2.currentJumps++;
+        if (gameStart) {
+            if (player2.body.touching.down)
+            {
+                player2.setVelocityY(-800);
+                player2.currentJumps++; //~ player.currentJumps = player.currentJumps + 1
+            }
+            else if (player2.currentJumps < player2.totalJumps)
+            {
+                player2.setVelocityY(-700);
+                player2.currentJumps++;
+            }
         }
     }
 
@@ -496,10 +501,13 @@
     }
 
     function startgame(event) {
-        //mainmenu.enableBody(false, mainmenu.x, mainmenu.y, true, true)
-        timer = this.time.delayedCall(10000, endOfTimer,[],this);
-        mainmenu.disableBody(true, true);
-        gameStart = true
+        if (!gameStart) {
+            //mainmenu.enableBody(false, mainmenu.x, mainmenu.y, true, true)
+            timer = this.time.delayedCall(10000, endOfTimer,[],this);
+            mainmenu.disableBody(true, true);
+            mainmenuClick.disableBody(true, true);
+            gameStart = true
+        }
     }
 
     function potatoFix() {
@@ -550,13 +558,15 @@
     }
 
     function RunGameOver() {
-        potato.disableBody(true, true);
-        potatoPlayer1.disableBody(true, true);
-        potatoPlayer1.isAlive = false;
-        potatoPlayer2.disableBody(true, true);
-        potatoPlayer2.isAlive = false;
-        GameOver.enableBody(false, GameOver.x, GameOver.y, true, true)
-        globalThis.time.delayedCall(3000, ResetGame,[],globalThis);
+        if (true) {
+            potato.disableBody(true, true);
+            potatoPlayer1.disableBody(true, true);
+            potatoPlayer1.isAlive = false;
+            potatoPlayer2.disableBody(true, true);
+            potatoPlayer2.isAlive = false;
+            GameOver.enableBody(false, GameOver.x, GameOver.y, true, true)
+            globalThis.time.delayedCall(3000, ResetGame,[],globalThis);
+        }
     }
 
     function ResetGame() {
