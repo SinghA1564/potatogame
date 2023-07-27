@@ -102,6 +102,7 @@
     var potatoPlayer2
     var globalThis
     var mainmenu
+    var GameOver
 
     var gameStart = false
 
@@ -121,6 +122,7 @@
         this.load.image('divider', 'assets/gray_divider.png');
         this.load.image('ground', 'assets/ground.png');
         this.load.image('pillar', 'assets/pillar.png');
+        this.load.image('gameover', 'assets/gameover_text.png');
     }
 
     function create()
@@ -219,6 +221,8 @@
             sky.setScale(1).refreshBody();
         }
 
+
+
         let wallPlatform = centerplatform.create(game.scale.width/2, 13000, 'pillar');
         wallPlatform.setScale(0.5, 1000).refreshBody(); //Center divider scaling
 
@@ -290,6 +294,10 @@
         basePlatform.setScale(10, 1).refreshBody(); //scales the base platform in the x axis to cover the entire floor
         LavaPlatform = lava.create(game.scale.width/2, 15000, 'lava');
         LavaPlatform.setScale(10, 30).refreshBody(); //scales the base platform in the x axis to cover the entire floor
+
+        GameOver = skys.create(0, 0, 'gameover')
+        GameOver.setScale(7, 7).refreshBody();
+        GameOver.disableBody(true, true)
     }
     
     function checkOneWay(player, oneway) {
@@ -413,11 +421,14 @@
             //Timer
             timerText.setPosition(game.scale.width/2-20 , camera.y*-1+50);
             timeRemaining = Math.round(timer.getRemainingSeconds());
+
+            GameOver.setPosition(game.scale.width/2-20 , camera.y*-1+500);
         
             if (timeRemaining >0) {
                 timerText.setText(timeRemaining);
             } else {
-                timerText.setText('Game Over')
+                timerText.setText('')
+                RunGameOver()
             }
         }
         if (potato.potatoOwner != -1 && potato.potatoOwner != -2) {
@@ -431,7 +442,8 @@
         }
      }   
     function endOfTimer() {
-        timerText.setText('Game Over');
+        timerText.setText('');
+        RunGameOver()
     }
 
     function jump(event)
@@ -513,10 +525,7 @@
         if (potato.PotatolastOwner.isAlive) {
             potato.potatoOwner = potato.PotatolastOwner
         } else {
-            potatoPlayer1.disableBody(true, true);
-            potatoPlayer1.isAlive = false;
-            potatoPlayer2.disableBody(true, true);
-            potatoPlayer2.isAlive = false;
+            RunGameOver()
         }
     }
 
@@ -527,10 +536,7 @@
       }
       else{
         if (potato.potatoOwner == player) {
-            potatoPlayer1.disableBody(true, true);
-            potatoPlayer1.isAlive = false;
-            potatoPlayer2.disableBody(true, true);
-            potatoPlayer2.isAlive = false;
+            RunGameOver()
         } else {
             player.disableBody(true, true);
             player.isAlive = false;
@@ -541,6 +547,24 @@
     function removeCheckpoint(checkpoint){
         checkpoint.isValid = false;
         checkpoint.disableBody(true, true);
+    }
+
+    function RunGameOver() {
+        potato.disableBody(true, true);
+        potatoPlayer1.disableBody(true, true);
+        potatoPlayer1.isAlive = false;
+        potatoPlayer2.disableBody(true, true);
+        potatoPlayer2.isAlive = false;
+        GameOver.enableBody(false, GameOver.x, GameOver.y, true, true)
+        globalThis.time.delayedCall(3000, ResetGame,[],globalThis);
+    }
+
+    function ResetGame() {
+        globalThis.registry.destroy(); // destroy registry
+        globalThis.events.off();﻿ // disable all active events
+        globalThis.scene.restart();
+        gameStart = false
+        mainmenu.enableBody(false, GameOver.x, GameOver.y, true, true)
     }
 
     </script>
