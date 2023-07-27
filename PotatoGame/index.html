@@ -31,7 +31,7 @@
     {
         isAlive;
         lastCheckpoint;
-        totalJumps = 1000;
+        totalJumps = 2;
         currentJumps = 0;
         constructor(scene, x, y)
         {
@@ -390,14 +390,7 @@
         }
 
         camera.y = camera.y+game.scale.height/50;
-        //timer
-        timerText.setPosition(295,player.y-600);
-        timeRemaining = Math.round(timer.getRemainingSeconds());
-        if (timeRemaining >0) {
-            timerText.setText(timeRemaining);
-        } else {
-            timerText.setText('')
-        }
+
     
         if (player.y > player2.y && player.isAlive) {
             camera.y = camera.y+(((player.y*-1)+500)-camera.y)/10;
@@ -419,7 +412,20 @@
             potato.setGravityY(1000); 
             potato.enableBody(false, potato.x, potato.y, true, true)
         }
-    }
+        //timer
+        if (player.y>player2.y) {
+            timerText.setPosition(295,player.y-600);
+        } else {
+            timerText.setPosition(295,player2.y-600);
+        }
+        timeRemaining = Math.round(timer.getRemainingSeconds());
+        
+        if (timeRemaining >0) {
+            timerText.setText(timeRemaining);
+        } else {
+            timerText.setText('')
+        }
+     }   
     function endOfTimer() {
         timerText.setText('');
     }
@@ -485,8 +491,10 @@
 
     function pickupPotato(player, currentPotato){
         if (potato.potatoOwner != -2) {
-            potato.PotatolastOwner = player
-            potato.potatoOwner = player
+            potato.PotatolastOwner = player;
+            potato.potatoOwner = player;
+            timer.remove();
+            timer = globalThis.time.delayedCall(101000, endOfTimer,[],globalThis);
         }
     }
 
