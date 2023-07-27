@@ -97,17 +97,11 @@
     var potatoPlayer2
     var globalThis
 
-    //var newCamera = new camera(0, 0, 1000, 1000)
-    //this.game.camera = newCamerarrentJumps = 0;
-
-    //var newCam = this.cameras.main
-
-
     function preload()
     {
         this.load.image('sky', 'assets/backing_lava.png');
         this.load.image('platform', 'assets/rock_platform.png');
-        //this.load.image('platform', 'assets/crumble_platform.png');
+        this.load.image('wall', 'assets/platform.png');
         this.load.image('player', 'assets/wabbit.png');
         this.load.image('lava', 'assets/lava.png');
         this.load.image('potato', 'assets/pixelated-potato.png')
@@ -124,12 +118,13 @@
     {
         globalThis = this
         camera = this.cameras.main;
-        //Set the background origin to be at (0, 0) or top left corner of the image rather than the center of the image asset
-       //let background = this.add.tileSprite(0, 0, game.scale.width, game.scale.height, 'sky').setOrigin(0, 0);
+
        createPlatforms(this);
-       player = new Player(this, 100, 13935);
+
+       //Create player
+       player = new Player(this, 100, 13945);
        this.physics.add.collider(player, platforms);
-       player2 = new Player(this, game.scale.width-100, 13935);
+       player2 = new Player(this, game.scale.width-100, 13945);
        this.physics.add.collider(player2, platforms);
        this.physics.add.collider(player2, centerplatform);
        this.physics.add.collider(player, centerplatform);
@@ -137,6 +132,7 @@
        player.setScale(1, 1).refreshBody();
        player2.setScale(1, 1).refreshBody();
 
+       //Create potato
        potato = new Potato(this, player.x, player.y-20)
        this.physics.add.collider(potato, platforms);
        potatoPlayer1 = player
@@ -156,8 +152,6 @@
        let checkpoint2 = new Checkpoint(this, player2.x, player2.y);
        checkpoints.push(checkpoint1);
        checkpoints.push(checkpoint2);
-       checkpoint1.setTexture('lava');
-       checkpoint2.setTexture('platform');
        player.lastCheckpoint = checkpoint1;
        player2.lastCheckpoint = checkpoint2;
        
@@ -179,8 +173,8 @@
         this.physics.add.collider(player2, LavaPlatform, playerInLava);
 
         //Timer
-        timerText = this.add.text(13800,13800, '', {fontSize: '32px', fill: '#000'});
-        timer = this.time.delayedCall(101000, endOfTimer,[],this);
+        timerText = this.add.text(13800,13800, '', {fontSize: '32px', fill: '#FFFFFF'});
+        timer = this.time.delayedCall(10000, endOfTimer,[],this);
 
         //Set lava and checkpoint collisions
        this.physics.add.overlap(checkpoints, LavaPlatform, removeCheckpoint);
@@ -203,9 +197,9 @@
        player.setScale(1, 1).refreshBody();
        player2.setScale(1, 1).refreshBody();
        player.x = 235
-       player.y = 13900
+       player.y = 13945
        player2.x = 235+(game.scale.width/2)
-       player2.y = 13900
+       player2.y = 13945
        camera.y = -13700
     }
 
@@ -224,10 +218,10 @@
         let wallPlatform = centerplatform.create(game.scale.width/2, 13000, 'pillar');
         wallPlatform.setScale(0.5, 1000).refreshBody(); //Center divider scaling
 
-        let wallPlatformRight = platforms.create(game.scale.width+40, 13000, 'platform');
+        let wallPlatformRight = platforms.create(game.scale.width+40, 13000, 'wall');
         wallPlatformRight.setScale(0.15, 1000).refreshBody();
 
-        let wallPlatformLeft = platforms.create(-40, 13000, 'platform');
+        let wallPlatformLeft = platforms.create(-40, 13000, 'wall');
         wallPlatformLeft.setScale(0.15, 1000).refreshBody();
 
         platforms.create(250, 350, 'platform'); //creates the upper left platform
@@ -385,17 +379,10 @@
         {
             player2.setVelocityX(400);
         }
-        // 100 > 200 200-100 100/2
-        //console.log("y:256 "+ player.y + "x: " + player.x)
-        if (player.y > player2.y) {
-            camera.y = camera.y+(((player.y*-1)+500)-camera.y)/10;
-        } else {
-            camera.y = camera.y+(((player2.y*-1)+500)-camera.y)/10;
-        }
 
         camera.y = camera.y+game.scale.height/50;
 
-    
+        //Camera controll
         if (player.y > player2.y && player.isAlive) {
             camera.y = camera.y+(((player.y*-1)+500)-camera.y)/10;
         } else if (player2.y > player.y && player2.isAlive) {
@@ -407,6 +394,7 @@
             camera.y = camera.y+(((player2.y*-1)+500)-camera.y)/10;
           }
         camera.y = camera.y+game.scale.height/50
+
         if (potato.potatoOwner != -1 && potato.potatoOwner != -2) {
             potato.x = potato.potatoOwner.x
             potato.y = potato.potatoOwner.y
@@ -416,12 +404,9 @@
             potato.setGravityY(1000); 
             potato.enableBody(false, potato.x, potato.y, true, true)
         }
-        //timer
-        if (player.y>player2.y) {
-            timerText.setPosition(295,player.y-600);
-        } else {
-            timerText.setPosition(295,player2.y-600);
-        }
+
+        //Timer
+        timerText.setPosition(game.scale.width/2-20 , camera.y*-1+50);
         timeRemaining = Math.round(timer.getRemainingSeconds());
         
         if (timeRemaining >0) {
@@ -498,7 +483,7 @@
             potato.PotatolastOwner = player;
             potato.potatoOwner = player;
             timer.remove();
-            timer = globalThis.time.delayedCall(101000, endOfTimer,[],globalThis);
+            timer = globalThis.time.delayedCall(10000, endOfTimer,[],globalThis);
         }
     }
 
@@ -514,7 +499,7 @@
       else{
         player.disableBody(true, true);
         player.isAlive = false;
-      }//else would be game over, to be added here later
+      }
     }
 
     function removeCheckpoint(checkpoint){
