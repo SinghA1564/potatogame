@@ -86,6 +86,7 @@
     var checkpoints = [];
     var timer;
     var timerText;
+    var progressBar;
 
     //Keyboard controls
     var cursors;
@@ -137,9 +138,13 @@
         this.load.image('Timer3', 'assets/timer_fire2.png');
         this.load.image('Timer4', 'assets/timer_fire3.png');
         this.load.image('Timer5', 'assets/timer_fire4.png');
-        this.load.multiatlas('Player1', 'assets/cityscene.json', 'assets');
+        //this.load.multiatlas('Player1', 'assets/cityscene.json', 'assets');
         this.load.image('gameWon','assets/you_win.png')
         this.load.image('portal','assets/portal.png')
+        this.load.image('platform_m', 'assets/rock_platform_middle.png');
+        this.load.image('platform_e', 'assets/rock_platform_end.png');
+        //this.load.image('progressBar', 'assets/progress_bar_frame.png');
+        //this.load.image('progressBarOverlay', 'assets/progress_bar_fill.png');
     }
 
     function create()
@@ -164,6 +169,14 @@
        //player2.y = 3000
        //player.x = game.scale.width/2-100
        //player2.x = game.scale.width/2+100
+
+       //Progress bar init
+       //bars = this.physics.add.staticGroup();
+       //progressBar = bars.create(0,0, 'progressBar');
+       //progressBar.setOrigin(0.6, 0);
+       //progressOverlay = bars.create(0,0, 'progressBarOverlay');
+       //progressOverlay.setOrigin(0.6, 0);
+      // progressOverlay.setScale(1, 0.01);
 
        //Win conditions
        this.physics.add.collider(player, winplatforms,wingame,checkOneWay,this);
@@ -276,8 +289,8 @@
         wallPlatformLeft.setScale(0.15, 1000).refreshBody();
 
         //Weird starting plats
-        platforms.create(250, 350, 'platform'); //creates the upper left platform
-        platforms.create(950, 500, 'platform'); //creates the bottome right platform
+        platforms.create(250, 350, 'platform');
+        platforms.create(950, 500, 'platform');
         
         let platsizeloc =  200
         for (let i=16; i < 91; i++) { // player 1 platforms
@@ -311,7 +324,17 @@
                 platform1.body.setSize(110, 30);
             //Create reg plat
             } else {
-                platform1 = platforms.create(platsizeloc, i*150+350, 'platform');
+                //Check what section plat is in
+                if(i < 30){
+                    platform1 = platforms.create(platsizeloc, i*150+350, 'platform_e');
+                }
+                else if (i < 60){
+                    platform1 = platforms.create(platsizeloc, i*150+350, 'platform_m');
+                }
+                else {
+                    platform1 = platforms.create(platsizeloc, i*150+350, 'platform');
+                }
+                //Always scale
                 platform1.setScale(0.5, 0.75).refreshBody();
             }
         }
@@ -348,7 +371,18 @@
                 platform1.body.setSize(110, 30);
             //Add a regular plat
             } else {
-                let platform1 = platforms.create(platsizeloc+(game.scale.width/2), i*150+350, 'platform');
+                //Check what section plat is in
+                if(i < 30){
+                    platform1 = platforms.create(platsizeloc+(game.scale.width/2), i*150+350, 'platform_e');
+                }
+                else if (i < 60){
+                    platform1 = platforms.create(platsizeloc+(game.scale.width/2), i*150+350, 'platform_m');
+                }
+                else {
+                    platform1 = platforms.create(platsizeloc+(game.scale.width/2), i*150+350, 'platform');
+                }
+                //Always scale
+                platform1.setScale(0.5, 0.75).refreshBody();
                 platform1.setScale(0.5, 0.75).refreshBody();
             }
         }
@@ -411,7 +445,7 @@
     
 
     function update()
-    {
+    {   
         if (player.y < 13900 || player2.y < 13900) {
             LavaPlatform.y = LavaPlatform.y - (0.3 + (13000-(camera.y*-1))/10000)
         }
@@ -524,6 +558,10 @@
             potato.setGravityY(1000); 
             potato.enableBody(false, potato.x, potato.y, true, true)
         }
+
+        //Progress bar
+        //progressBar.setPosition(game.scale.width/20 * 19 , camera.y*-1 + 200);
+        //progressOverlay.setPosition(game.scale.width/20 * 19, camera.y*-1 + 200);
      }   
     function endOfTimer() {
         timerText.setText('');
@@ -638,7 +676,7 @@
     }
 
     function RunGameOver() {
-        if (true) {
+        if (true) { //Only change to false for dev mode
             potato.disableBody(true, true);
             potatoPlayer1.disableBody(true, true);
             potatoPlayer1.isAlive = false;
