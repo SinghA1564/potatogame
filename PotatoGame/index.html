@@ -118,12 +118,9 @@
     var Clock;
     var gameStart = false;
     var winplatform;
-<<<<<<< HEAD
     var gameOverMusic;
-=======
     var player1Animations = {};
     var player2Animations = {};
->>>>>>> ad2475f48a0e7fc37a70dab3376454d8089302fc
 
     function preload()
     {
@@ -157,12 +154,9 @@
         this.load.image('progressBar', 'assets/progress_bar_frame.png');
         this.load.image('progressBarOverlay', 'assets/progress_bar_fill.png');
         this.load.audio('music',["assets/soundtrack.mp3"]);
-<<<<<<< HEAD
         this.load.audio('gameOverMusic',['assets/Game Over.mp3']);
         this.load.audio('footsteps', ['assets/footsteps.mp3']);
-=======
         this.load.image('progressBarOverlay2', 'assets/progress_bar_fill_green.png');
->>>>>>> ad2475f48a0e7fc37a70dab3376454d8089302fc
     }
 
     function create()
@@ -321,13 +315,12 @@
        emitter.startFollow(potato);
        //sounds
        backgroundMusic = this.sound.add("music");
-       backgroundMusic.setVolume(0.2);
+       backgroundMusic.setVolume(0.7);
        backgroundMusic.play({loop: true});
        footSteps = this.sound.add('footsteps');
        footSteps.setVolume(10);
-       if ((cursors.left.isDown || cursors.right.isDown || keys.D.isDown || keys.A.isDown) && player.body.touching.down) {
-            footSteps.play();
-        }
+        footSteps.play();
+        footSteps.pause();
        gameOverMusic = this.sound.add('gameOverMusic', {loop: false});
        gameOverMusic.play();
        gameOverMusic.pause();
@@ -659,6 +652,10 @@
         progressOverlay2.scaleY = 1 - ((LavaPlatform.y-3000) / 12000);
         progressOverlay.setPosition(game.scale.width/20 * 18.4, camera.y*-1 + 240);
         progressOverlay.scaleY = 1 - ((player.y-2000) / 12000);
+
+        if ((cursors.left.isDown || cursors.right.isDown || keys.D.isDown || keys.A.isDown) && player.body.touching.down) {
+            footSteps.resume();
+        }
         
 
      }   
