@@ -39,7 +39,7 @@
     {
         isAlive;
         lastCheckpoint;
-        totalJumps = 2;
+        totalJumps = 1000;
         currentJumps = 0;
         constructor(scene, x, y)
         {
@@ -97,17 +97,18 @@
     var cursors;
     var keys;
     var space;
-    var LavaPlatform
-    var camera
-    var potato
+    var LavaPlatform;
+    var camera;
+    var potato;
 
-    var potatoPlayer1
-    var potatoPlayer2
-    var globalThis
-    var mainmenu
-    var GameOver
-    var Clock
-    var gameStart = false
+    var potatoPlayer1;
+    var potatoPlayer2;
+    var globalThis;
+    var mainmenu;
+    var GameOver;
+    var GameWon;
+    var Clock;
+    var gameStart = false;
 
     function preload()
     {
@@ -131,6 +132,7 @@
         this.load.image('Timer3', 'assets/timer_fire2.png');
         this.load.image('Timer4', 'assets/timer_fire3.png');
         this.load.image('Timer5', 'assets/timer_fire4.png');
+        this.load.image('gameWon','assets/you_win.png')
     }
 
     function create()
@@ -322,6 +324,10 @@
         GameOver = skys.create(0, 0, 'gameover')
         GameOver.setScale(7, 7).refreshBody();
         GameOver.disableBody(true, true)
+
+        GameWon = skys.create(0,0,'gameWon')
+        GameWon.setScale(0.5,0.5).refreshBody();
+        GameWon.disableBody(true,true)
     }
     
     function checkOneWay(player, oneway) {
@@ -448,6 +454,8 @@
             timeRemaining = Math.round(timer.getRemainingSeconds());
 
             GameOver.setPosition(game.scale.width/2 , camera.y*-1+500);
+
+            GameWon.setPosition(game.scale.width/2, camera.y*-1+300);
         
             if (timeRemaining >0) {
                 timerText.setText(timeRemaining);
@@ -455,6 +463,10 @@
                 timerText.setText('')
                 RunGameOver()
             }
+            if (potato.y<7000) {
+                RunGameWon();
+            }
+            
         }
         if (potato.potatoOwner != -1 && potato.potatoOwner != -2) {
             potato.x = potato.potatoOwner.x
@@ -582,7 +594,7 @@
     }
 
     function RunGameOver() {
-        if (true) {
+        if (false) {
             potato.disableBody(true, true);
             potatoPlayer1.disableBody(true, true);
             potatoPlayer1.isAlive = false;
@@ -591,6 +603,15 @@
             GameOver.enableBody(false, GameOver.x, GameOver.y, true, true)
             globalThis.time.delayedCall(3000, ResetGame,[],globalThis);
         }
+    }
+
+    function RunGameWon() {
+        potato.disableBody(true,true);
+        potatoPlayer1.disableBody(true,true);
+        potatoPlayer2.disableBody(true,true);
+        Clock.disableBody(true,true);
+        timerText.setText('');
+        GameWon.enableBody(false,GameWon.x,GameWon.y,true,true);
     }
 
     function ResetGame() {
