@@ -18,6 +18,9 @@
         scale: {autoCenter: Phaser.Scale.CENTER_BOTH},
         physics: {
             default: 'arcade',
+            //arcade: {
+            //    debug: true
+            //}
         },
 
         scene: {
@@ -33,6 +36,7 @@
         lastCheckpoint;
         totalJumps = 2;
         currentJumps = 0;
+        facing;
         constructor(scene, x, y)
         {
             super(scene, x, y, 'player');
@@ -114,7 +118,12 @@
     var Clock;
     var gameStart = false;
     var winplatform;
+<<<<<<< HEAD
     var gameOverMusic;
+=======
+    var player1Animations = {};
+    var player2Animations = {};
+>>>>>>> ad2475f48a0e7fc37a70dab3376454d8089302fc
 
     function preload()
     {
@@ -139,17 +148,21 @@
         this.load.image('Timer3', 'assets/timer_fire2.png');
         this.load.image('Timer4', 'assets/timer_fire3.png');
         this.load.image('Timer5', 'assets/timer_fire4.png');
-        //this.load.multiatlas('Player1', 'assets/cityscene.json', 'assets');
+        this.load.atlas('spriteplayer1', 'assets/1spritesheet.png', 'assets/1spritesheet.json');
+        this.load.atlas('spriteplayer2', 'assets/spritesheet2.png', 'assets/spritesheet2.json');
+        this.load.image('gameWon','assets/you_win.png')
+        this.load.image('portal','assets/portal.png')
         this.load.image('platform_m', 'assets/rock_platform_middle.png');
         this.load.image('platform_e', 'assets/rock_platform_end.png');
-        //this.load.image('progressBar', 'assets/progress_bar_frame.png');
-        //this.load.image('progressBarOverlay', 'assets/progress_bar_fill.png');
-        this.load.multiatlas('Player1', 'assets/cityscene.json', 'assets');
-        this.load.image('gameWon','assets/you_win.png');
-        this.load.image('portal','assets/portal.png');
+        this.load.image('progressBar', 'assets/progress_bar_frame.png');
+        this.load.image('progressBarOverlay', 'assets/progress_bar_fill.png');
         this.load.audio('music',["assets/soundtrack.mp3"]);
+<<<<<<< HEAD
         this.load.audio('gameOverMusic',['assets/Game Over.mp3']);
         this.load.audio('footsteps', ['assets/footsteps.mp3']);
+=======
+        this.load.image('progressBarOverlay2', 'assets/progress_bar_fill_green.png');
+>>>>>>> ad2475f48a0e7fc37a70dab3376454d8089302fc
     }
 
     function create()
@@ -157,12 +170,46 @@
         globalThis = this
         camera = this.cameras.main;
 
+        let idleleft1 = this.anims.create({key: 'Player1IdleLeft', frames: this.anims.generateFrameNames('spriteplayer1', {prefix: 'Idle_Left', end: 0, zeroPad: 1}), repeat: -1});
+        let idleright1 = this.anims.create({key: 'Player1IdleRight', frames: this.anims.generateFrameNames('spriteplayer1', {prefix: 'Idle_Right', end: 0, zeroPad: 1}), repeat: -1});
+        let left1 = this.anims.create({key: 'Player1Left', frames: this.anims.generateFrameNames('spriteplayer1', {prefix: 'Move_Left', end: 3, zeroPad: 1}), repeat: -1});
+        let right1 = this.anims.create({key: 'Player1Right', frames: this.anims.generateFrameNames('spriteplayer1', {prefix: 'Move_right', end: 3, zeroPad: 1}), repeat: -1});
+        let jumpright1 = this.anims.create({key: 'Player1JumpRight', frames: this.anims.generateFrameNames('spriteplayer1', {prefix: 'jump_right_', end: 8, zeroPad: 1}), repeat: -1, frameRate: 30});
+        let jumpleft1 = this.anims.create({key: 'Player1JumpLeft', frames: this.anims.generateFrameNames('spriteplayer1', {prefix: 'jump_left_', end: 8, zeroPad: 1}), repeat: -1, frameRate: 30});
+
+        let idleleft2 = this.anims.create({key: 'Player2IdleLeft', frames: this.anims.generateFrameNames('spriteplayer2', {prefix: 'player2_Idle_Left', end: 0, zeroPad: 1}), repeat: -1});
+        let idleright2 = this.anims.create({key: 'Player2IdleRight', frames: this.anims.generateFrameNames('spriteplayer2', {prefix: 'player2_Idle_Right', end: 0, zeroPad: 1}), repeat: -1});
+        let left2 = this.anims.create({key: 'Player2Left', frames: this.anims.generateFrameNames('spriteplayer2', {prefix: 'player2_Move_Left', end: 3, zeroPad: 1}), repeat: -1});
+        let right2 = this.anims.create({key: 'Player2Right', frames: this.anims.generateFrameNames('spriteplayer2', {prefix: 'player2_Move_right', end: 3, zeroPad: 1}), repeat: -1});
+        let jumpright2 = this.anims.create({key: 'Player2JumpRight', frames: this.anims.generateFrameNames('spriteplayer2', {prefix: 'player2_jump_right_', end: 8, zeroPad: 1}), repeat: 1, frameRate: 30});
+        let jumpleft2 = this.anims.create({key: 'Player2JumpLeft', frames: this.anims.generateFrameNames('spriteplayer2', {prefix: 'player2_jump_left_', end: 8, zeroPad: 1}), repeat: 1, frameRate: 30});
        createPlatforms(this);
+
+
+       player1Animations = {};
+       player1Animations['idleLeft'] = idleleft1;
+       player1Animations['idleRight'] = idleright1;
+       player1Animations['Left'] = left1;
+       player1Animations['Right'] = right1;
+       player1Animations['JumpRight'] = jumpright1;
+       player1Animations['JumpLeft'] = jumpleft1;
+
+       player2Animations = {};
+       player2Animations['idleLeft'] = idleleft2;
+       player2Animations['idleRight'] = idleright2;
+       player2Animations['Left'] = left2;
+       player2Animations['Right'] = right2;
+       player2Animations['JumpRight'] = jumpright2;
+       player2Animations['JumpLeft'] = jumpleft2;
 
        //Create player
        player = new Player(this, 100, 13945);
+       player.play(player1Animations['idleRight']);
+       player.facing = "idleRight"
        this.physics.add.collider(player, platforms);
        player2 = new Player(this, game.scale.width-100, 13945);
+       player2.play(player2Animations['idleLeft']);
+       player2.facing = "idleLeft"
 
        //Create player collisions
        this.physics.add.collider(player2, platforms);
@@ -176,12 +223,22 @@
        //player2.x = game.scale.width/2+100
 
        //Progress bar init
-       //bars = this.physics.add.staticGroup();
-       //progressBar = bars.create(0,0, 'progressBar');
-       //progressBar.setOrigin(0.6, 0);
-       //progressOverlay = bars.create(0,0, 'progressBarOverlay');
-       //progressOverlay.setOrigin(0.6, 0);
-      // progressOverlay.setScale(1, 0.01);
+       bars = this.physics.add.staticGroup();
+       progressOverlay = bars.create(0,0, 'progressBarOverlay2');
+       progressOverlay2 = bars.create(0,0, 'progressBarOverlay');
+       progressOverlay.angle = 180;
+       progressOverlay2.angle = 180;
+       progressOverlay.setOrigin(0.6, 0);
+       progressOverlay2.setOrigin(0.6, 0);
+       progressOverlay.setScale(1, 0.01);
+       progressOverlay2.setScale(1, 0.01);
+       progressOverlay.disableBody(true, true);
+       progressOverlay2.disableBody(true, true);
+       progressBar = bars.create(0,0, 'progressBar');
+       progressBar.setOrigin(0.5, 0);
+       progressBar.setScale(0.9, 1);
+       progressBar.disableBody(true, true);
+
 
        //Win conditions
        this.physics.add.collider(player, winplatforms,wingame,checkOneWay,this);
@@ -208,6 +265,9 @@
        checkpoints.push(checkpoint2);
        player.lastCheckpoint = checkpoint1;
        player2.lastCheckpoint = checkpoint2;
+
+       player.body.setSize(20, 30);
+       player2.body.setSize(20, 30);
        
        //Set player collision with checkpoints
        this.physics.add.overlap(player, checkpoints, setCheckpoint);
@@ -463,6 +523,7 @@
 
     function update()
     {   
+        //debug only: console.log(player.y);
         if (player.y < 13900 || player2.y < 13900) {
             LavaPlatform.y = LavaPlatform.y - (0.3 + (13000-(camera.y*-1))/10000)
         }
@@ -508,20 +569,37 @@
             //Handle player movements
             if (keys.A.isDown) {
                 player.setVelocityX(-400);
+                if (player.anims.currentAnim.key != "Player1Left") {
+                    player.play(player1Animations['Left']);
+                }
+                player.facing = "idleLeft"
+            } else if (keys.D.isDown) {
+               player.setVelocityX(400);
+               if (player.anims.currentAnim.key != "Player1Right") {
+                    player.play(player1Animations['Right']);
+                }
+               player.facing = "idleRight"
+            } else {
+                player.play(player1Animations[player.facing]);
             }
+
             if (cursors.left.isDown)
             {
                 player2.setVelocityX(-400);
+                if (player2.anims.currentAnim.key != "Player2Left") {
+                    player2.play(player2Animations['Left']);
+                }
+                player2.facing = "idleLeft"
+            } else if (cursors.right.isDown) {
+                player2.setVelocityX(400);
+                if (player2.anims.currentAnim.key != "Player2Right") {
+                    player2.play(player2Animations['Right']);
+                }
+                player2.facing = "idleRight"
+            } else {
+                player2.play(player2Animations[player2.facing]);
             }
 
-            if (keys.D.isDown)
-            {
-               player.setVelocityX(400);
-            }
-            if (cursors.right.isDown)
-            {
-                player2.setVelocityX(400);
-         }
             if (player.y > player2.y && player.isAlive) {
                 camera.y = camera.y+(((player.y*-1)+500)-camera.y)/10;
             } else if (player2.y > player.y && player2.isAlive) {
@@ -576,12 +654,17 @@
         }
 
         //Progress bar
-        //progressBar.setPosition(game.scale.width/20 * 19 , camera.y*-1 + 200);
-        //progressOverlay.setPosition(game.scale.width/20 * 19, camera.y*-1 + 200);
+        progressBar.setPosition(game.scale.width-27, camera.y*-1);
+        progressOverlay2.setPosition(game.scale.width/20 * 18.4, camera.y*-1 + 240);
+        progressOverlay2.scaleY = 1 - ((LavaPlatform.y-3000) / 12000);
+        progressOverlay.setPosition(game.scale.width/20 * 18.4, camera.y*-1 + 240);
+        progressOverlay.scaleY = 1 - ((player.y-2000) / 12000);
+        
+
      }   
     function endOfTimer() {
         timerText.setText('');
-        RunGameOver()
+        RunGameOver();
     }
 
     function jump(event)
@@ -637,10 +720,13 @@
 
     function startgame(event) {
         if (!gameStart) {
-            timer = this.time.delayedCall(10000, endOfTimer,[],this);
+            timer = this.time.delayedCall(1000000, endOfTimer,[],this);
             mainmenu.disableBody(true, true);
             mainmenuClick.disableBody(true, true);
             gameStart = true
+            progressBar.enableBody(false, 0, 0, true, true);
+            progressOverlay.enableBody(false, 0, 0, true, true);
+            progressOverlay2.enableBody(false, 0, 0, true, true);
         }
     }
 
@@ -727,7 +813,7 @@
     function wingame(player, platform){
         if (potato.potatoOwner == player && gameStart) {
             RunGameWon()
-            globalThis.time.delayedCall(100000, ResetGame,[],globalThis);
+            globalThis.time.delayedCall(10000, ResetGame,[],globalThis);
         }
     }
 
