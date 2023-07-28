@@ -670,7 +670,7 @@
     function wingame(player, platform){
         if (potato.potatoOwner == player && gameStart) {
             RunGameWon()
-            globalThis.time.delayedCall(3000, ResetGame,[],globalThis);
+            globalThis.time.delayedCall(100000, ResetGame,[],globalThis);
         }
     }
 
