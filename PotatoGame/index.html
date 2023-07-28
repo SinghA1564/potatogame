@@ -31,7 +31,7 @@
     {
         isAlive;
         lastCheckpoint;
-        totalJumps = 1000;
+        totalJumps = 2;
         currentJumps = 0;
         constructor(scene, x, y)
         {
@@ -138,9 +138,10 @@
         this.load.image('Timer4', 'assets/timer_fire3.png');
         this.load.image('Timer5', 'assets/timer_fire4.png');
         this.load.multiatlas('Player1', 'assets/cityscene.json', 'assets');
-        this.load.image('gameWon','assets/you_win.png')
-        this.load.image('portal','assets/portal.png')
-        this.load.audio('music',["assets/soundtrack.mp3"])
+        this.load.image('gameWon','assets/you_win.png');
+        this.load.image('portal','assets/portal.png');
+        this.load.audio('music',["assets/soundtrack.mp3"]);
+        this.load.image('progressBar','assets/progress_bar_frame.png');
     }
 
     function create()
