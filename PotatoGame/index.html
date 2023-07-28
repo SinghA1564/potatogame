@@ -22,7 +22,7 @@
 
         scene: {
             preload: preload,
-            create: create,
+            create: create, 
            update: update,
         }
     };
@@ -140,6 +140,7 @@
         this.load.multiatlas('Player1', 'assets/cityscene.json', 'assets');
         this.load.image('gameWon','assets/you_win.png')
         this.load.image('portal','assets/portal.png')
+        this.load.audio('music',["assets/soundtrack.mp3"])
     }
 
     function create()
@@ -241,6 +242,10 @@
 
        //Assign emitter to potato
        emitter.startFollow(potato);
+       //music
+       backgroundMusic = this.sound.add("music");
+       backgroundMusic.play({loop: true});
+
     }
        
 
