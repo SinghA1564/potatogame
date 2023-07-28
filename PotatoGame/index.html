@@ -113,6 +113,7 @@
     var Clock;
     var gameStart = false;
     var winplatform;
+    var gameOverMusic;
 
     function preload()
     {
@@ -141,7 +142,7 @@
         this.load.image('gameWon','assets/you_win.png');
         this.load.image('portal','assets/portal.png');
         this.load.audio('music',["assets/soundtrack.mp3"]);
-        this.load.image('progressBar','assets/progress_bar_frame.png');
+        this.load.audio('gameOverMusic',['assets/Game Over.mp3'])
     }
 
     function create()
@@ -243,10 +244,12 @@
 
        //Assign emitter to potato
        emitter.startFollow(potato);
-       //music
+       //sounds
        backgroundMusic = this.sound.add("music");
        backgroundMusic.play({loop: true});
-
+       gameOverMusic = this.sound.add('gameOverMusic', {loop: false});
+       gameOverMusic.play();
+       gameOverMusic.pause();
     }
        
 
@@ -650,8 +653,11 @@
             potatoPlayer1.isAlive = false;
             potatoPlayer2.disableBody(true, true);
             potatoPlayer2.isAlive = false;
+            backgroundMusic.setMute(true);
+            gameOverMusic.resume();
+            console.log("YOU did run!")
             GameOver.enableBody(false, GameOver.x, GameOver.y, true, true)
-            globalThis.time.delayedCall(3000, ResetGame,[],globalThis);
+            globalThis.time.delayedCall(7500, ResetGame,[],globalThis);
         }
     }
 
