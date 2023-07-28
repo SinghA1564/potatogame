@@ -39,7 +39,7 @@
     {
         isAlive;
         lastCheckpoint;
-        totalJumps = 2;
+        totalJumps = 1000;
         currentJumps = 0;
         constructor(scene, x, y)
         {
@@ -97,18 +97,19 @@
     var cursors;
     var keys;
     var space;
-    var LavaPlatform
-    var camera
-    var potato
+    var LavaPlatform;
+    var camera;
+    var potato;
 
-    var potatoPlayer1
-    var potatoPlayer2
-    var globalThis
-    var mainmenu
-    var GameOver
-    var Clock
-    var gameStart = false
-    var winplatform
+    var potatoPlayer1;
+    var potatoPlayer2;
+    var globalThis;
+    var mainmenu;
+    var GameOver;
+    var GameWon;
+    var Clock;
+    var gameStart = false;
+    var winplatform;
 
     function preload()
     {
@@ -133,6 +134,8 @@
         this.load.image('Timer4', 'assets/timer_fire3.png');
         this.load.image('Timer5', 'assets/timer_fire4.png');
         this.load.multiatlas('Player1', 'assets/cityscene.json', 'assets');
+        this.load.image('gameWon','assets/you_win.png')
+        this.load.image('portal','assets/portal.png')
     }
 
     function create()
@@ -148,8 +151,8 @@
        player2 = new Player(this, game.scale.width-100, 13945);
 
        //
-       //player.y = 2500
-       //player2.y = 2500
+       //player.y = 3000
+       //player2.y = 3000
        //player.x = game.scale.width/2-100
        //player2.x = game.scale.width/2+100
        //
@@ -247,6 +250,9 @@
         winplatform = winplatforms.create(game.scale.width/2, 2600, 'platform');
         winplatform.setScale(2, 1).refreshBody();
 
+        let SpawnPortal = skys.create(game.scale.width/2, 2600-146, 'portal');
+        SpawnPortal.setScale(1, 1).refreshBody();
+
         let wallPlatformRight = platforms.create(game.scale.width+40, 13000, 'wall');
         wallPlatformRight.setScale(0.15, 1000).refreshBody();
 
@@ -343,6 +349,10 @@
         GameOver = skys.create(0, 0, 'gameover')
         GameOver.setScale(7, 7).refreshBody();
         GameOver.disableBody(true, true)
+
+        GameWon = skys.create(0,0,'gameWon')
+        GameWon.setScale(0.5,0.5).refreshBody();
+        GameWon.disableBody(true,true)
     }
     
     function checkOneWay(player, oneway) {
@@ -473,6 +483,8 @@
             timeRemaining = Math.round(timer.getRemainingSeconds());
 
             GameOver.setPosition(game.scale.width/2 , camera.y*-1+500);
+
+            GameWon.setPosition(game.scale.width/2, camera.y*-1+300);
         
             if (timeRemaining >0) {
                 timerText.setText(timeRemaining);
@@ -480,6 +492,7 @@
                 timerText.setText('')
                 RunGameOver()
             }
+            
         }
         if (potato.potatoOwner != -1 && potato.potatoOwner != -2) {
             potato.x = potato.potatoOwner.x
@@ -607,7 +620,7 @@
     }
 
     function RunGameOver() {
-        if (false) {
+        if (true) {
             potato.disableBody(true, true);
             potatoPlayer1.disableBody(true, true);
             potatoPlayer1.isAlive = false;
@@ -618,18 +631,27 @@
         }
     }
 
+    function RunGameWon() {
+        potato.disableBody(true,true);
+        potatoPlayer1.disableBody(true,true);
+        potatoPlayer2.disableBody(true,true);
+        Clock.disableBody(true,true);
+        timerText.setText('');
+        GameWon.enableBody(false,GameWon.x,GameWon.y,true,true);
+    }
+
     function ResetGame() {
         globalThis.registry.destroy(); // destroy registry
         globalThis.events.off();﻿ // disable all active events
         globalThis.scene.restart();
         gameStart = false
         mainmenu.enableBody(false, GameOver.x, GameOver.y, true, true)
+        potato.enableBody(false, potato.x, potato.y, true, true)
     }
 
     function wingame(player, platform){
         if (potato.potatoOwner == player && gameStart) {
-            // show win screen
-            //console.log("Win")
+            RunGameWon()
             globalThis.time.delayedCall(3000, ResetGame,[],globalThis);
         }
     }
