@@ -148,7 +148,8 @@
         this.load.image('gameWon','assets/you_win.png');
         this.load.image('portal','assets/portal.png');
         this.load.audio('music',["assets/soundtrack.mp3"]);
-        this.load.audio('gameOverMusic',['assets/Game Over.mp3'])
+        this.load.audio('gameOverMusic',['assets/Game Over.mp3']);
+        this.load.audio('footsteps', ['assets/footsteps.mp3']);
     }
 
     function create()
@@ -260,7 +261,13 @@
        emitter.startFollow(potato);
        //sounds
        backgroundMusic = this.sound.add("music");
+       backgroundMusic.setVolume(0.2);
        backgroundMusic.play({loop: true});
+       footSteps = this.sound.add('footsteps');
+       footSteps.setVolume(10);
+       if ((cursors.left.isDown || cursors.right.isDown || keys.D.isDown || keys.A.isDown) && player.body.touching.down) {
+            footSteps.play();
+        }
        gameOverMusic = this.sound.add('gameOverMusic', {loop: false});
        gameOverMusic.play();
        gameOverMusic.pause();
@@ -557,7 +564,6 @@
                 timerText.setText('')
                 RunGameOver()
             }
-            
         }
         if (potato.potatoOwner != -1 && potato.potatoOwner != -2) {
             potato.x = potato.potatoOwner.x
@@ -693,8 +699,8 @@
             potatoPlayer2.disableBody(true, true);
             potatoPlayer2.isAlive = false;
             backgroundMusic.setMute(true);
+            footSteps.setMute(true);
             gameOverMusic.resume();
-            console.log("YOU did run!")
             GameOver.enableBody(false, GameOver.x, GameOver.y, true, true)
             globalThis.time.delayedCall(7500, ResetGame,[],globalThis);
         }
