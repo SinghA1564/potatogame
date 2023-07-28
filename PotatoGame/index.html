@@ -31,7 +31,7 @@
     {
         isAlive;
         lastCheckpoint;
-        totalJumps = 2;
+        totalJumps = 200;
         currentJumps = 0;
         constructor(scene, x, y)
         {
@@ -141,13 +141,14 @@
         //this.load.multiatlas('Player1', 'assets/cityscene.json', 'assets');
         this.load.image('platform_m', 'assets/rock_platform_middle.png');
         this.load.image('platform_e', 'assets/rock_platform_end.png');
-        //this.load.image('progressBar', 'assets/progress_bar_frame.png');
-        //this.load.image('progressBarOverlay', 'assets/progress_bar_fill.png');
+        this.load.image('progressBar', 'assets/progress_bar_frame.png');
+        this.load.image('progressBarOverlay', 'assets/progress_bar_fill.png');
         this.load.multiatlas('Player1', 'assets/cityscene.json', 'assets');
         this.load.image('gameWon','assets/you_win.png');
         this.load.image('portal','assets/portal.png');
         this.load.audio('music',["assets/soundtrack.mp3"]);
         this.load.image('progressBar','assets/progress_bar_frame.png');
+        this.load.image('progressBarOverlay2', 'assets/progress_bar_fill_green.png');
     }
 
     function create()
@@ -174,12 +175,22 @@
        //player2.x = game.scale.width/2+100
 
        //Progress bar init
-       //bars = this.physics.add.staticGroup();
-       //progressBar = bars.create(0,0, 'progressBar');
-       //progressBar.setOrigin(0.6, 0);
-       //progressOverlay = bars.create(0,0, 'progressBarOverlay');
-       //progressOverlay.setOrigin(0.6, 0);
-      // progressOverlay.setScale(1, 0.01);
+       bars = this.physics.add.staticGroup();
+       progressOverlay = bars.create(0,0, 'progressBarOverlay2');
+       progressOverlay2 = bars.create(0,0, 'progressBarOverlay');
+       progressOverlay.angle = 180;
+       progressOverlay2.angle = 180;
+       progressOverlay.setOrigin(0.6, 0);
+       progressOverlay2.setOrigin(0.6, 0);
+       progressOverlay.setScale(1, 0.01);
+       progressOverlay2.setScale(1, 0.01);
+       progressOverlay.disableBody(true, true);
+       progressOverlay2.disableBody(true, true);
+       progressBar = bars.create(0,0, 'progressBar');
+       progressBar.setOrigin(0.5, 0);
+       progressBar.setScale(0.9, 1);
+       progressBar.disableBody(true, true);
+
 
        //Win conditions
        this.physics.add.collider(player, winplatforms,wingame,checkOneWay,this);
@@ -453,6 +464,7 @@
 
     function update()
     {   
+        //debug only: console.log(player.y);
         if (player.y < 13900 || player2.y < 13900) {
             LavaPlatform.y = LavaPlatform.y - (0.3 + (13000-(camera.y*-1))/10000)
         }
@@ -567,12 +579,17 @@
         }
 
         //Progress bar
-        //progressBar.setPosition(game.scale.width/20 * 19 , camera.y*-1 + 200);
-        //progressOverlay.setPosition(game.scale.width/20 * 19, camera.y*-1 + 200);
+        progressBar.setPosition(game.scale.width-27, camera.y*-1);
+        progressOverlay2.setPosition(game.scale.width/20 * 18.4, camera.y*-1 + 240);
+        progressOverlay2.scaleY = 1 - ((LavaPlatform.y-3000) / 12000);
+        progressOverlay.setPosition(game.scale.width/20 * 18.4, camera.y*-1 + 240);
+        progressOverlay.scaleY = 1 - ((player.y-2000) / 12000);
+        
+
      }   
     function endOfTimer() {
         timerText.setText('');
-        RunGameOver()
+        RunGameOver();
     }
 
     function jump(event)
@@ -632,6 +649,9 @@
             mainmenu.disableBody(true, true);
             mainmenuClick.disableBody(true, true);
             gameStart = true
+            progressBar.enableBody(false, 0, 0, true, true);
+            progressOverlay.enableBody(false, 0, 0, true, true);
+            progressOverlay2.enableBody(false, 0, 0, true, true);
         }
     }
 
@@ -650,7 +670,7 @@
                 potato.potatoOwner = player
                 potato.PotatolastOwner = player
                 timer.remove();
-                timer = globalThis.time.delayedCall(10000, endOfTimer,[],globalThis);
+                timer = globalThis.time.delayedCall(1000000, endOfTimer,[],globalThis);
         }  
     }
 
