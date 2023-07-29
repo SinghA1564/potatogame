@@ -163,15 +163,11 @@
         let idleright1 = this.anims.create({key: 'Player1IdleRight', frames: this.anims.generateFrameNames('spriteplayer1', {prefix: 'Idle_Right', end: 0, zeroPad: 1}), repeat: -1});
         let left1 = this.anims.create({key: 'Player1Left', frames: this.anims.generateFrameNames('spriteplayer1', {prefix: 'Move_Left', end: 3, zeroPad: 1}), repeat: -1});
         let right1 = this.anims.create({key: 'Player1Right', frames: this.anims.generateFrameNames('spriteplayer1', {prefix: 'Move_right', end: 3, zeroPad: 1}), repeat: -1});
-        let jumpright1 = this.anims.create({key: 'Player1JumpRight', frames: this.anims.generateFrameNames('spriteplayer1', {prefix: 'jump_right_', end: 8, zeroPad: 1}), repeat: -1, frameRate: 30});
-        let jumpleft1 = this.anims.create({key: 'Player1JumpLeft', frames: this.anims.generateFrameNames('spriteplayer1', {prefix: 'jump_left_', end: 8, zeroPad: 1}), repeat: -1, frameRate: 30});
 
         let idleleft2 = this.anims.create({key: 'Player2IdleLeft', frames: this.anims.generateFrameNames('spriteplayer2', {prefix: 'player2_Idle_Left', end: 0, zeroPad: 1}), repeat: -1});
         let idleright2 = this.anims.create({key: 'Player2IdleRight', frames: this.anims.generateFrameNames('spriteplayer2', {prefix: 'player2_Idle_Right', end: 0, zeroPad: 1}), repeat: -1});
         let left2 = this.anims.create({key: 'Player2Left', frames: this.anims.generateFrameNames('spriteplayer2', {prefix: 'player2_Move_Left', end: 3, zeroPad: 1}), repeat: -1});
         let right2 = this.anims.create({key: 'Player2Right', frames: this.anims.generateFrameNames('spriteplayer2', {prefix: 'player2_Move_right', end: 3, zeroPad: 1}), repeat: -1});
-        let jumpright2 = this.anims.create({key: 'Player2JumpRight', frames: this.anims.generateFrameNames('spriteplayer2', {prefix: 'player2_jump_right_', end: 8, zeroPad: 1}), repeat: 1, frameRate: 30});
-        let jumpleft2 = this.anims.create({key: 'Player2JumpLeft', frames: this.anims.generateFrameNames('spriteplayer2', {prefix: 'player2_jump_left_', end: 8, zeroPad: 1}), repeat: 1, frameRate: 30});
        createPlatforms(this);
 
 
@@ -180,16 +176,12 @@
        player1Animations['idleRight'] = idleright1;
        player1Animations['Left'] = left1;
        player1Animations['Right'] = right1;
-       player1Animations['JumpRight'] = jumpright1;
-       player1Animations['JumpLeft'] = jumpleft1;
 
        player2Animations = {};
        player2Animations['idleLeft'] = idleleft2;
        player2Animations['idleRight'] = idleright2;
        player2Animations['Left'] = left2;
        player2Animations['Right'] = right2;
-       player2Animations['JumpRight'] = jumpright2;
-       player2Animations['JumpLeft'] = jumpleft2;
 
        //Create player
        player = new Player(this, 100, 13945);
@@ -363,8 +355,18 @@
             //Add a checkpoint on every 10 platforms
             if(i % 10 == 0){ // Mod number adjusts plaform check freq.
               let checkpoint1 = new Checkpoint(scene, platsizeloc, i*150+350 - 45);
-              platform1 = platforms.create(platsizeloc, i*150+350, 'platform');
-              platform1.setScale(0.5, 0.75).refreshBody();
+                //Check what section plat is in
+                if(i < 30){
+                    platform1 = platforms.create(platsizeloc, i*150+350, 'platform_e');
+                }
+                else if (i < 60){
+                    platform1 = platforms.create(platsizeloc, i*150+350, 'platform_m');
+                }
+                else {
+                    platform1 = platforms.create(platsizeloc, i*150+350, 'platform');
+                }
+                //Always scale
+                platform1.setScale(0.5, 0.75).refreshBody();
               //Add crubmling plat every 7
             } else if (i % 7 == 0) {
                 platform1 = collapsingPlatforms.create(platsizeloc, i*150+350, 'collapsing-platform');
@@ -410,7 +412,17 @@
             //Add a checkpoint on every 10 platforms
             if(i % 10 == 0){ // Mod number adjusts plaform check freq.
                 let checkpoint2 = new Checkpoint(scene, platsizeloc+(game.scale.width/2), i*150+350 - 45);
-                let platform1 = platforms.create(platsizeloc+(game.scale.width/2), i*150+350, 'platform');
+                //Check what section plat is in
+                if(i < 30){
+                    platform1 = platforms.create(platsizeloc+(game.scale.width/2), i*150+350, 'platform_e');
+                }
+                else if (i < 60){
+                    platform1 = platforms.create(platsizeloc+(game.scale.width/2), i*150+350, 'platform_m');
+                }
+                else {
+                    platform1 = platforms.create(platsizeloc+(game.scale.width/2), i*150+350, 'platform');
+                }
+                //Always scale
                 platform1.setScale(0.5, 0.75).refreshBody();
             //Add a crumble plat every 7
             } else if (i % 7 == 0){
@@ -430,7 +442,6 @@
                     platform1 = platforms.create(platsizeloc+(game.scale.width/2), i*150+350, 'platform');
                 }
                 //Always scale
-                platform1.setScale(0.5, 0.75).refreshBody();
                 platform1.setScale(0.5, 0.75).refreshBody();
             }
         }
@@ -606,7 +617,7 @@
 
             GameWon.setPosition(game.scale.width/2, camera.y*-1+300);
         
-            if (timeRemaining >0) {
+            if (timeRemaining >0 && gameStart) {
                 timerText.setText(timeRemaining);
             } else {
                 timerText.setText('')
@@ -759,6 +770,8 @@
         Clock.disableBody(true,true);
         timerText.setText('');
         GameWon.enableBody(false,GameWon.x,GameWon.y,true,true);
+        gameStart = false
+        globalThis.time.delayedCall(3000, ResetGame,[],globalThis);
     }
 
     function ResetGame() {
