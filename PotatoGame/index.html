@@ -118,6 +118,7 @@
     var Clock;
     var gameStart = false;
     var winplatform;
+    var gameOverMusic;
     var player1Animations = {};
     var player2Animations = {};
 
@@ -150,8 +151,12 @@
         this.load.image('portal','assets/portal.png')
         this.load.image('platform_m', 'assets/rock_platform_middle.png');
         this.load.image('platform_e', 'assets/rock_platform_end.png');
+        this.load.image('progressBar', 'assets/progress_bar_frame.png');
+        this.load.image('progressBarOverlay', 'assets/progress_bar_fill.png');
         this.load.audio('music',["assets/soundtrack.mp3"]);
-        this.load.image('progressBar','assets/progress_bar_frame.png');
+        this.load.audio('gameOverMusic',['assets/Game Over.mp3']);
+        this.load.audio('footsteps', ['assets/footsteps.mp3']);
+        this.load.image('progressBarOverlay2', 'assets/progress_bar_fill_green.png');
     }
 
     function create()
@@ -204,12 +209,22 @@
        //player2.x = game.scale.width/2+100
 
        //Progress bar init
-       //bars = this.physics.add.staticGroup();
-       //progressBar = bars.create(0,0, 'progressBar');
-       //progressBar.setOrigin(0.6, 0);
-       //progressOverlay = bars.create(0,0, 'progressBarOverlay');
-       //progressOverlay.setOrigin(0.6, 0);
-      // progressOverlay.setScale(1, 0.01);
+       bars = this.physics.add.staticGroup();
+       progressOverlay = bars.create(0,0, 'progressBarOverlay2');
+       progressOverlay2 = bars.create(0,0, 'progressBarOverlay');
+       progressOverlay.angle = 180;
+       progressOverlay2.angle = 180;
+       progressOverlay.setOrigin(0.6, 0);
+       progressOverlay2.setOrigin(0.6, 0);
+       progressOverlay.setScale(1, 0.01);
+       progressOverlay2.setScale(1, 0.01);
+       progressOverlay.disableBody(true, true);
+       progressOverlay2.disableBody(true, true);
+       progressBar = bars.create(0,0, 'progressBar');
+       progressBar.setOrigin(0.5, 0);
+       progressBar.setScale(0.9, 1);
+       progressBar.disableBody(true, true);
+
 
        //Win conditions
        this.physics.add.collider(player, winplatforms,wingame,checkOneWay,this);
@@ -290,10 +305,17 @@
 
        //Assign emitter to potato
        emitter.startFollow(potato);
-       //music
+       //sounds
        backgroundMusic = this.sound.add("music");
+       backgroundMusic.setVolume(0.7);
        backgroundMusic.play({loop: true});
-
+       footSteps = this.sound.add('footsteps');
+       footSteps.setVolume(10);
+        footSteps.play();
+        footSteps.pause();
+       gameOverMusic = this.sound.add('gameOverMusic', {loop: false});
+       gameOverMusic.play();
+       gameOverMusic.pause();
     }
        
 
@@ -505,6 +527,7 @@
 
     function update()
     {   
+        //debug only: console.log(player.y);
         if (player.y < 13900 || player2.y < 13900) {
             LavaPlatform.y = LavaPlatform.y - (0.3 + (13000-(camera.y*-1))/10000)
         }
@@ -623,7 +646,6 @@
                 timerText.setText('')
                 RunGameOver()
             }
-            
         }
         if (potato.potatoOwner != -1 && potato.potatoOwner != -2) {
             potato.x = potato.potatoOwner.x
@@ -636,12 +658,21 @@
         }
 
         //Progress bar
-        //progressBar.setPosition(game.scale.width/20 * 19 , camera.y*-1 + 200);
-        //progressOverlay.setPosition(game.scale.width/20 * 19, camera.y*-1 + 200);
+        progressBar.setPosition(game.scale.width-27, camera.y*-1);
+        progressOverlay2.setPosition(game.scale.width/20 * 18.5, camera.y*-1 + 240);
+        progressOverlay2.scaleY = 1 - ((LavaPlatform.y-3000) / 12000);
+        progressOverlay.setPosition(game.scale.width/20 * 18.5, camera.y*-1 + 240);
+        progressOverlay.scaleY = 1 - ((player.y-2000) / 12000);
+
+        if ((cursors.left.isDown || cursors.right.isDown || keys.D.isDown || keys.A.isDown) && player.body.touching.down) {
+            footSteps.resume();
+        }
+        
+
      }   
     function endOfTimer() {
         timerText.setText('');
-        RunGameOver()
+        RunGameOver();
     }
 
     function jump(event)
@@ -697,10 +728,13 @@
 
     function startgame(event) {
         if (!gameStart) {
-            timer = this.time.delayedCall(10000, endOfTimer,[],this);
+            timer = this.time.delayedCall(1000000, endOfTimer,[],this);
             mainmenu.disableBody(true, true);
             mainmenuClick.disableBody(true, true);
             gameStart = true
+            progressBar.enableBody(false, 0, 0, true, true);
+            progressOverlay.enableBody(false, 0, 0, true, true);
+            progressOverlay2.enableBody(false, 0, 0, true, true);
         }
     }
 
@@ -758,8 +792,11 @@
             potatoPlayer1.isAlive = false;
             potatoPlayer2.disableBody(true, true);
             potatoPlayer2.isAlive = false;
+            backgroundMusic.setMute(true);
+            footSteps.setMute(true);
+            gameOverMusic.resume();
             GameOver.enableBody(false, GameOver.x, GameOver.y, true, true)
-            globalThis.time.delayedCall(3000, ResetGame,[],globalThis);
+            globalThis.time.delayedCall(7500, ResetGame,[],globalThis);
         }
     }
 
@@ -786,7 +823,7 @@
     function wingame(player, platform){
         if (potato.potatoOwner == player && gameStart) {
             RunGameWon()
-            globalThis.time.delayedCall(100000, ResetGame,[],globalThis);
+            globalThis.time.delayedCall(10000, ResetGame,[],globalThis);
         }
     }
 
