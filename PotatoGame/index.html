@@ -710,7 +710,7 @@
         if (potato.potatoOwner == potatoPlayer1) {
             potato.PotatolastOwner =  potatoPlayer1
             potato.setVelocityY(-400)
-            potato.setVelocityX(Math.abs(potatoPlayer1.x-potatoPlayer2.x)*3.5)
+            potato.setVelocityX(Math.abs(potatoPlayer1.x-potatoPlayer2.x)*3.25)
             potato.potatoOwner = -2
             globalThis.time.delayedCall(300, potatoFix, [], this);
         }
@@ -720,7 +720,7 @@
         if (potato.potatoOwner == potatoPlayer2) {
             potato.PotatolastOwner =  potatoPlayer2
             potato.setVelocityY(-400)
-            potato.setVelocityX(Math.abs(potatoPlayer1.x-potatoPlayer2.x)*-3.5)
+            potato.setVelocityX(Math.abs(potatoPlayer1.x-potatoPlayer2.x)*-3.25)
             potato.potatoOwner = -2
             globalThis.time.delayedCall(300, potatoFix, [], this);
         }
